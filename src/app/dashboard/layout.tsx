@@ -16,7 +16,8 @@ import {
   Bars3Icon,
   XMarkIcon,
   CubeIcon,
-  UserGroupIcon
+  UserGroupIcon,
+  ShieldCheckIcon
 } from '@heroicons/react/24/outline'
 
 export default function DashboardLayout({
@@ -34,6 +35,7 @@ export default function DashboardLayout({
     { name: 'Servicios', href: '/dashboard/servicios', icon: TagIcon, roles: ['ADMINISTRADOR', 'ESTILISTA'] },
     { name: 'Productos', href: '/dashboard/productos', icon: CubeIcon, roles: ['ADMINISTRADOR', 'ESTILISTA'] },
     { name: 'Usuarios', href: '/dashboard/usuarios', icon: UserGroupIcon, roles: ['ADMINISTRADOR'] },
+    { name: 'Roles', href: '/dashboard/roles', icon: ShieldCheckIcon, roles: ['ADMINISTRADOR'] },
     { name: 'Configuración', href: '/dashboard/configuracion', icon: CogIcon, roles: ['ADMINISTRADOR'] },
     { name: 'Auditoría', href: '/dashboard/auditoria', icon: DocumentTextIcon, roles: ['ADMINISTRADOR'] },
   ]

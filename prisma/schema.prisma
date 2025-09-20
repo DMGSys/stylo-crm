@@ -19,6 +19,7 @@ model User {
   email         String   @unique
   password      String?
   role          UserRole @default(ESTILISTA)
+  roleId        String?  // Referencia a rol personalizado
   emailVerified DateTime?
   image         String?
   activo        Boolean  @default(true)
@@ -31,8 +32,25 @@ model User {
   sessions     Session[]
   accounts     Account[]
   movimientos  MovimientoInventario[]
+  roleCustom   Role?    @relation(fields: [roleId], references: [id])
 
   @@map("users")
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  nombre      String   @unique
+  descripcion String?
+  color       String   @default("#6B7280") // Color para la UI
+  icono       String   @default("👤") // Emoji o clase de icono
+  activo      Boolean  @default(true)
+  permisos    Json     // JSON con permisos específicos
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  usuarios User[]
+
+  @@map("roles")
 }
 
 model Cliente {

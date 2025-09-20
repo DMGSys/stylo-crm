@@ -3,7 +3,7 @@ import { prisma } from "./prisma"
 export interface AuditLogData {
   usuarioId?: string
   accion: 'CREATE' | 'UPDATE' | 'DELETE'
-  entidad: 'Cliente' | 'Cita' | 'User' | 'Configuracion'
+  entidad: 'Cliente' | 'Cita' | 'User' | 'Configuracion' | 'Role'
   entidadId: string
   datosAntes?: any
   datosDespues?: any
