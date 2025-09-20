@@ -23,7 +23,9 @@ interface Cliente {
   apellido: string
   telefono?: string
   email?: string
+  direccion?: string
   tipoPelo: string
+  colorOriginalPelo?: string
   redesSociales?: string
   fotos?: string
   notas?: string
@@ -292,6 +294,16 @@ export default function ClienteDetailPage() {
                     </span>
                   </dd>
                 </div>
+                {cliente.colorOriginalPelo && (
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">Color Original del Pelo</dt>
+                    <dd className="mt-1 text-sm text-gray-900 flex items-center">
+                      <span className="inline-flex items-center">
+                        🎨 <span className="ml-2 capitalize">{cliente.colorOriginalPelo}</span>
+                      </span>
+                    </dd>
+                  </div>
+                )}
                 {cliente.telefono && (
                   <div>
                     <dt className="text-sm font-medium text-gray-500">Teléfono</dt>

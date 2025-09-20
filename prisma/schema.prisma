@@ -36,18 +36,20 @@ model User {
 }
 
 model Cliente {
-  id           String   @id @default(cuid())
-  nombre       String
-  apellido     String
-  telefono     String?
-  email        String?
-  tipoPelo     TipoPelo @default(LISO)
-  redesSociales String?
-  fotos        String?
-  notas        String?
-  activo       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                String   @id @default(cuid())
+  nombre            String
+  apellido          String
+  telefono          String?
+  email             String?
+  direccion         String?
+  tipoPelo          TipoPelo @default(LISO)
+  colorOriginalPelo String?  // Color natural del cabello
+  redesSociales     String?
+  fotos             String?
+  notas             String?
+  activo            Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   citas Cita[]
 

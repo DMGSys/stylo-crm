@@ -8,8 +8,10 @@ import {
   UserIcon,
   CheckIcon,
   XMarkIcon,
-  TrashIcon
+  TrashIcon,
+  CameraIcon
 } from '@heroicons/react/24/outline'
+import CameraCapture from '@/components/CameraCapture'
 
 interface Cliente {
   id: string
@@ -17,7 +19,9 @@ interface Cliente {
   apellido: string
   telefono?: string
   email?: string
+  direccion?: string
   tipoPelo: string
+  colorOriginalPelo?: string
   redesSociales?: string
   fotos?: string
   notas?: string
@@ -32,12 +36,17 @@ export default function EditarClientePage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [mensaje, setMensaje] = useState<{ tipo: 'success' | 'error', texto: string } | null>(null)
+  const [showCamera, setShowCamera] = useState(false)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     nombre: '',
     apellido: '',
     telefono: '',
     email: '',
+    direccion: '',
     tipoPelo: 'LISO',
+    colorOriginalPelo: '',
     redesSociales: '',
     notas: ''
   })
@@ -61,10 +70,17 @@ export default function EditarClientePage() {
           apellido: data.apellido || '',
           telefono: data.telefono || '',
           email: data.email || '',
+          direccion: data.direccion || '',
           tipoPelo: data.tipoPelo || 'LISO',
+          colorOriginalPelo: data.colorOriginalPelo || '',
           redesSociales: data.redesSociales || '',
           notas: data.notas || ''
         })
+
+        // Inicializar foto
+        if (data.fotos) {
+          setPhotoPreview(data.fotos)
+        }
       } else {
         console.error('Cliente no encontrado')
         router.push('/dashboard/clientes')
@@ -82,6 +98,46 @@ export default function EditarClientePage() {
       ...prev,
       [field]: value
     }))
+  }
+
+  // Manejar captura de foto
+  const handlePhotoCapture = async (photoDataUrl: string) => {
+    try {
+      setUploadingPhoto(true)
+      setMensaje(null)
+
+      const response = await fetch('/api/upload/photo', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          photoDataUrl,
+          clienteId: cliente!.id,
+          type: 'cliente'
+        })
+      })
+
+      if (response.ok) {
+        const result = await response.json()
+        setPhotoPreview(result.url)
+        setMensaje({ tipo: 'success', texto: 'Foto subida correctamente' })
+      } else {
+        const error = await response.json()
+        throw new Error(error.error || 'Error al subir foto')
+      }
+    } catch (error: any) {
+      console.error('Error uploading photo:', error)
+      setMensaje({ tipo: 'error', texto: error.message || 'Error al subir foto' })
+    } finally {
+      setUploadingPhoto(false)
+    }
+  }
+
+  // Eliminar foto
+  const handleRemovePhoto = () => {
+    setPhotoPreview(null)
+    setMensaje({ tipo: 'success', texto: 'Foto eliminada' })
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -107,8 +163,11 @@ export default function EditarClientePage() {
           apellido: formData.apellido.trim(),
           telefono: formData.telefono.trim() || undefined,
           email: formData.email.trim() || undefined,
+          direccion: formData.direccion.trim() || undefined,
           tipoPelo: formData.tipoPelo,
+          colorOriginalPelo: formData.colorOriginalPelo.trim() || undefined,
           redesSociales: formData.redesSociales.trim() || undefined,
+          fotos: photoPreview || undefined,
           notas: formData.notas.trim() || undefined
         })
       })
@@ -328,7 +387,7 @@ export default function EditarClientePage() {
                     />
                   </div>
                   
-                  <div className="sm:col-span-2">
+                  <div>
                     <label htmlFor="tipoPelo" className="block text-sm font-medium text-gray-700">
                       Tipo de Pelo
                     </label>
@@ -345,6 +404,90 @@ export default function EditarClientePage() {
                       <option value="MIXTO" className="text-gray-900 bg-white">Mixto</option>
                     </select>
                   </div>
+                  
+                  <div>
+                    <label htmlFor="colorOriginalPelo" className="block text-sm font-medium text-gray-700">
+                      Color Original del Pelo
+                    </label>
+                    <select
+                      id="colorOriginalPelo"
+                      value={formData.colorOriginalPelo}
+                      onChange={(e) => handleInputChange('colorOriginalPelo', e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    >
+                      <option value="" className="text-gray-500 bg-white">Seleccionar color...</option>
+                      <option value="negro" className="text-gray-900 bg-white">Negro</option>
+                      <option value="castaño oscuro" className="text-gray-900 bg-white">Castaño Oscuro</option>
+                      <option value="castaño" className="text-gray-900 bg-white">Castaño</option>
+                      <option value="castaño claro" className="text-gray-900 bg-white">Castaño Claro</option>
+                      <option value="rubio oscuro" className="text-gray-900 bg-white">Rubio Oscuro</option>
+                      <option value="rubio" className="text-gray-900 bg-white">Rubio</option>
+                      <option value="rubio claro" className="text-gray-900 bg-white">Rubio Claro</option>
+                      <option value="pelirrojo" className="text-gray-900 bg-white">Pelirrojo</option>
+                      <option value="gris" className="text-gray-900 bg-white">Gris</option>
+                      <option value="blanco" className="text-gray-900 bg-white">Blanco</option>
+                      <option value="otro" className="text-gray-900 bg-white">Otro</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Foto del Cliente */}
+            <div className="bg-white shadow rounded-lg">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">Foto del Cliente</h3>
+              </div>
+              <div className="px-6 py-4">
+                <div className="space-y-4">
+                  {/* Vista previa de la foto */}
+                  <div className="flex justify-center">
+                    {photoPreview ? (
+                      <div className="relative">
+                        <img
+                          src={photoPreview}
+                          alt="Foto del cliente"
+                          className="h-32 w-32 object-cover rounded-full border-4 border-gray-200 shadow-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleRemovePhoto}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors shadow-lg"
+                          title="Eliminar foto"
+                        >
+                          <XMarkIcon className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="h-32 w-32 rounded-full bg-gray-100 flex items-center justify-center border-4 border-gray-200 border-dashed">
+                        <span className="text-4xl">{getHairTypeAvatar(formData.tipoPelo)}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Botones de acción */}
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowCamera(true)}
+                      disabled={uploadingPhoto}
+                      className="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <CameraIcon className="h-4 w-4 mr-2" />
+                      {photoPreview ? 'Cambiar Foto' : 'Tomar Foto'}
+                    </button>
+                  </div>
+
+                  {uploadingPhoto && (
+                    <div className="flex items-center justify-center py-2">
+                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mr-2"></div>
+                      <span className="text-sm text-gray-600">Subiendo foto...</span>
+                    </div>
+                  )}
+
+                  <p className="text-xs text-gray-500 text-center">
+                    📱 En móviles y tablets puedes usar la cámara directamente
+                  </p>
                 </div>
               </div>
             </div>
@@ -473,6 +616,15 @@ export default function EditarClientePage() {
           </div>
         </div>
       </form>
+
+      {/* Modal de Cámara */}
+      {showCamera && (
+        <CameraCapture
+          onPhotoCapture={handlePhotoCapture}
+          onClose={() => setShowCamera(false)}
+          currentPhoto={photoPreview || undefined}
+        />
+      )}
     </div>
   )
 }

@@ -19,7 +19,9 @@ export default function NuevoClientePage() {
     apellido: '',
     telefono: '',
     email: '',
+    direccion: '',
     tipoPelo: 'LISO',
+    colorOriginalPelo: '',
     redesSociales: '',
     notas: ''
   })
