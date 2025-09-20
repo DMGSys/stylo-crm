@@ -581,7 +581,7 @@ export default function EditarClientePage() {
         <div className="flex justify-between pt-6 border-t border-gray-200">
           <button
             type="button"
-            onClick={handleDelete}
+            onClick={handleDeactivate}
             className="inline-flex items-center px-4 py-2 border border-red-300 text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-sm"
           >
             <TrashIcon className="h-4 w-4 mr-2" />
