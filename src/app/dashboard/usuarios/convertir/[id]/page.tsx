@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useAuthRequired } from '@/lib/auth'
 import Link from 'next/link'
@@ -130,10 +130,11 @@ export default function ConvertirClientePage() {
 
     try {
       // Verificar si el email ya existe como usuario
-      const checkResponse = await fetch(`/api/usuarios?email=${encodeURIComponent(cliente.email)}`)
+      const checkResponse = await fetch('/api/usuarios')
       if (checkResponse.ok) {
         const existingUsers = await checkResponse.json()
-        if (existingUsers.usuarios && existingUsers.usuarios.length > 0) {
+        const emailExists = existingUsers.usuarios?.some((user: any) => user.email === cliente.email)
+        if (emailExists) {
           throw new Error('Ya existe un usuario con este email')
         }
       }
