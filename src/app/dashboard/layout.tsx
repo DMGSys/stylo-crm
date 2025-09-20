@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useAuthRequired } from '@/lib/auth'
 import {
   HomeIcon,
@@ -54,8 +55,20 @@ export default function DashboardLayout({
     <div className="min-h-screen bg-gray-50">
       {/* Sidebar */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}>
-        <div className="flex items-center justify-between h-16 px-6 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-gray-900">Peluquería PWA</h1>
+        <div className="flex items-center justify-between h-16 px-4 sm:px-6 border-b border-gray-200">
+          <div className="flex items-center space-x-3">
+            <div className="h-8 w-8 bg-blue-100 rounded-lg flex items-center justify-center">
+              <span className="text-blue-600 font-semibold text-sm">💇‍♀️</span>
+            </div>
+            <div>
+              <h1 className="text-lg sm:text-xl font-bold text-gray-900">
+                Panel de Control
+              </h1>
+              <p className="text-xs text-gray-500 hidden sm:block">
+                Gestión del Salón
+              </p>
+            </div>
+          </div>
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100"
@@ -80,30 +93,48 @@ export default function DashboardLayout({
         </nav>
 
         {/* User Info & Logout */}
-        <div className="absolute bottom-0 w-full p-4 border-t border-gray-200 bg-white">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                <span className="text-sm font-medium text-blue-600">
-                  {session.user?.name?.charAt(0) || session.user?.email?.charAt(0) || 'U'}
-                </span>
+        <div className="absolute bottom-0 w-full border-t border-gray-200 bg-white">
+          <div className="p-4">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span className="text-sm font-medium text-blue-600">
+                    {session.user?.name?.charAt(0) || session.user?.email?.charAt(0) || 'U'}
+                  </span>
+                </div>
               </div>
+              <div className="ml-3 flex-1">
+                <p className="text-sm font-medium text-gray-700 truncate">
+                  {session.user?.name || session.user?.email}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {session.user?.role}
+                </p>
+              </div>
+              <button
+                onClick={logout}
+                className="ml-2 p-1 text-gray-400 hover:text-gray-600"
+                title="Cerrar sesión"
+              >
+                <ArrowRightOnRectangleIcon className="h-5 w-5" />
+              </button>
             </div>
-            <div className="ml-3 flex-1">
-              <p className="text-sm font-medium text-gray-700 truncate">
-                {session.user?.name || session.user?.email}
-              </p>
-              <p className="text-xs text-gray-500">
-                {session.user?.role}
-              </p>
+          </div>
+          
+          {/* Branding de Stylo */}
+          <div className="px-4 py-2 bg-gray-50 border-t border-gray-100">
+            <div className="flex items-center justify-center">
+              <Image
+                src="/logo/stylo-logo.png"
+                alt="Stylo"
+                width={16}
+                height={16}
+                className="mr-2"
+              />
+              <span className="text-xs text-gray-500" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                Powered by <span style={{ color: '#C9A227', fontWeight: '600' }}>Stylo</span>
+              </span>
             </div>
-            <button
-              onClick={logout}
-              className="ml-2 p-1 text-gray-400 hover:text-gray-600"
-              title="Cerrar sesión"
-            >
-              <ArrowRightOnRectangleIcon className="h-5 w-5" />
-            </button>
           </div>
         </div>
       </div>

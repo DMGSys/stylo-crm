@@ -6,13 +6,18 @@ import { Providers } from './providers'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Peluquería PWA',
-  description: 'Aplicación para gestión de peluquería',
+  title: 'Stylo - CRM para Salones de Belleza',
+  description: 'CRM completo para salones de belleza, peluquerías, barberías y spas',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/logo/favicon.png',
+    shortcut: '/logo/favicon.png',
+    apple: '/logo/favicon.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Peluquería PWA'
+    title: 'Stylo'
   }
 }
 
@@ -21,7 +26,7 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#3b82f6'
+  themeColor: '#C9A227'
 }
 
 export default function RootLayout({

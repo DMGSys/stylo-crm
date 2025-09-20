@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import {
   EyeIcon,
   EyeSlashIcon,
@@ -72,17 +73,27 @@ export default function SignIn() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-blue-600">
-            <svg className="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
+        <div className="text-center">
+          <div className="mx-auto w-24 h-24 sm:w-32 sm:h-32 mb-4">
+            <Image
+              src="/logo/stylo-logo.png"
+              alt="Stylo Logo"
+              width={128}
+              height={128}
+              className="mx-auto rounded-xl shadow-md"
+            />
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Peluquería PWA
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-900" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+            <span style={{ color: '#C9A227' }}>Stylo</span>
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Inicia sesión para acceder al sistema
+          <p className="mt-2 text-sm sm:text-base text-gray-600" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            Reserva, cuidate, brillá
+          </p>
+          <p className="mt-1 text-xs sm:text-sm text-gray-500">
+            CRM para Salones de Belleza
+          </p>
+          <p className="mt-1 text-xs text-gray-400">
+            Inicia sesión para gestionar tu salón
           </p>
         </div>
         
@@ -93,8 +104,8 @@ export default function SignIn() {
             <div>
               <h3 className="text-sm font-medium text-blue-800">Credenciales de prueba:</h3>
               <div className="mt-1 text-sm text-blue-700">
-                <p><strong>Admin:</strong> admin@peluqueria.com / admin123</p>
-                <p><strong>Estilista:</strong> estilista@peluqueria.com / estilista123</p>
+                <p><strong>Admin:</strong> admin@stylo.com / admin123</p>
+                <p><strong>Estilista:</strong> estilista@stylo.com / estilista123</p>
               </div>
             </div>
           </div>

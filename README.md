@@ -1,6 +1,24 @@
-# 💇‍♀️ Sistema de Gestión para Peluquerías - PWA
+# ✨ Stylo - CRM para Salones de Belleza
 
-Sistema completo de gestión para peluquerías desarrollado con Next.js, Prisma y SQLite. Incluye gestión de clientes, citas, servicios, inventario y configuración avanzada.
+**"Reserva, cuidate, brillá"**
+
+**Stylo** es un CRM completo diseñado para profesionales de la belleza. Cada salón puede personalizar completamente su configuración, logo, horarios y servicios. Desarrollado con Next.js, Prisma y SQLite.
+
+## 🏢 **Concepto Multi-Tenant**
+
+**Stylo** es el sistema CRM que utilizan múltiples salones de belleza como clientes. Cada salón tiene:
+- ✅ **Su propia configuración** personalizada
+- ✅ **Su logo y branding** único
+- ✅ **Sus horarios** específicos
+- ✅ **Sus servicios** y precios
+- ✅ **Sus clientes** y citas
+- ✅ **Su información** de contacto
+
+**Ejemplos de clientes de Stylo:**
+- 💇‍♀️ "Peluquería L&A" - Junín, Buenos Aires
+- 💈 "Barbería El Corte" - Madrid, España  
+- 💅 "Nails Studio" - Ciudad de México
+- 🌸 "Spa Relax" - Bogotá, Colombia
 
 ## 🚀 Características Principales
 
@@ -54,6 +72,38 @@ Sistema completo de gestión para peluquerías desarrollado con Next.js, Prisma 
 - ✅ Diseño responsive completo
 - ✅ Área táctil optimizada (44px mínimo)
 
+## 🎯 **Rubros Compatibles**
+
+### **💇‍♀️ Peluquerías**
+- Cortes, tintes, peinados
+- Tratamientos capilares
+- Alisados, mechas, permanentes
+
+### **💈 Barberías**
+- Cortes masculinos tradicionales y modernos
+- Afeitado y arreglo de barba
+- Tratamientos capilares masculinos
+
+### **💅 Centros de Manicura/Pedicura**
+- Manicura y pedicura clásica
+- Uñas acrílicas, gel, polygel
+- Nail art y decoración especializada
+
+### **🧴 Centros de Estética**
+- Tratamientos faciales y corporales
+- Depilación láser y tradicional
+- Limpieza facial y anti-edad
+
+### **🌸 Spas y Wellness**
+- Masajes terapéuticos y relajantes
+- Tratamientos corporales
+- Aromaterapia y relajación
+
+### **💄 Centros de Maquillaje**
+- Maquillaje social y profesional
+- Maquillaje para eventos
+- Cursos y workshops
+
 ## 🛠️ Tecnologías
 
 - **Frontend**: Next.js 15, React, TypeScript
@@ -74,7 +124,7 @@ Sistema completo de gestión para peluquerías desarrollado con Next.js, Prisma 
 ```bash
 # Clonar el repositorio
 git clone [URL_DEL_REPOSITORIO]
-cd peluqueria-pwa
+cd stylo-pwa
 
 # Instalar dependencias
 npm install
@@ -106,12 +156,12 @@ La aplicación estará disponible en `http://localhost:3000`
 ## 👤 Usuarios por Defecto
 
 ### Administrador
-- **Email**: admin@peluqueria.com
+- **Email**: admin@stylo.com
 - **Contraseña**: admin123
 - **Permisos**: Acceso completo al sistema
 
-### Estilista
-- **Email**: estilista@peluqueria.com
+### Estilista/Profesional
+- **Email**: estilista@stylo.com
 - **Contraseña**: estilista123
 - **Permisos**: Gestión de citas y clientes
 
@@ -249,4 +299,25 @@ Proyecto de código abierto para peluquerías.
 
 ---
 
-**Desarrollado con ❤️ para el sector de belleza y cuidado personal**
+---
+
+## 🎨 **Branding**
+
+### **Colores**
+- **Primario**: #C9A227 (Dorado elegante)
+- **Secundario**: #1A1A1A (Negro sofisticado)
+- **Texto**: #FFFFFF (Blanco puro)
+- **Acento**: #FF6F61 (Coral vibrante)
+
+### **Tipografías**
+- **Títulos**: Montserrat (moderna y elegante)
+- **Cuerpo**: Poppins (legible y amigable)
+
+### **Slogan**
+*"Reserva, cuidate, brillá"*
+
+---
+
+**Desarrollado con ❤️ para profesionales de la belleza y cuidado personal**
+
+**✨ Stylo - Donde la belleza se gestiona con estilo ✨**

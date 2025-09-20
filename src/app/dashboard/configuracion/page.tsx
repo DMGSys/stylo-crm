@@ -292,17 +292,52 @@ export default function ConfiguracionPage() {
         {/* Información del Negocio */}
         <div className="bg-white shadow rounded-lg">
           <div className="px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center">
-              <BuildingStorefrontIcon className="h-6 w-6 text-gray-400 mr-3" />
-              <h3 className="text-lg font-medium text-gray-900">Información del Negocio</h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <BuildingStorefrontIcon className="h-6 w-6 text-gray-400 mr-3" />
+                <div>
+                  <h3 className="text-lg font-medium text-gray-900">Información del Negocio</h3>
+                  <p className="text-sm text-gray-500">Configure los datos de su salón</p>
+                </div>
+              </div>
+              <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
+                🏢 Su Negocio
+              </div>
             </div>
           </div>
           <div className="px-6 py-4">
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="space-y-6">
+              {/* Logo del Salón */}
               <div>
-                <label htmlFor="negocio_nombre" className="block text-sm font-medium text-gray-700">
-                  Nombre del Negocio
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  🎨 Logo del Salón
                 </label>
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0">
+                    <div className="h-20 w-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+                      <span className="text-gray-400 text-xs text-center">
+                        Logo<br/>Aquí
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex-1">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">
+                      PNG, JPG hasta 2MB. Se mostrará en mensajes de WhatsApp y documentos.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <div>
+                  <label htmlFor="negocio_nombre" className="block text-sm font-medium text-gray-700">
+                    🏪 Nombre del Negocio
+                  </label>
                 <input
                   type="text"
                   id="negocio_nombre"
@@ -340,6 +375,7 @@ export default function ConfiguracionPage() {
                   placeholder="Calle Principal 123, Madrid"
                 />
               </div>
+            </div>
             </div>
           </div>
         </div>

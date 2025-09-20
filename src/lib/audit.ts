@@ -161,9 +161,9 @@ export function hasPermission(userRole: string, action: string, resource: string
 // Función para crear mensajes de WhatsApp con configuración
 export function createWhatsAppMessage(cita: any, cliente: any, config?: any): string {
   // Usar configuración pasada o valores por defecto
-  const nombreNegocio = config?.negocio?.nombre || 'Peluquería Elegance'
-  const direccionNegocio = config?.negocio?.direccion || 'Calle Principal 123, Madrid'
-  const telefonoNegocio = config?.negocio?.telefono || '+34 666 123 456'
+  const nombreNegocio = config?.negocio?.nombre || 'Stylo - Salón de Belleza'
+  const direccionNegocio = config?.negocio?.direccion || 'Av. Principal 123, Ciudad'
+  const telefonoNegocio = config?.negocio?.telefono || '+1 (555) 123-4567'
   const simboloMoneda = config?.moneda?.simbolo || '€'
   const posicionMoneda = config?.moneda?.posicion || 'after'
   const decimales = config?.moneda?.decimales || 2

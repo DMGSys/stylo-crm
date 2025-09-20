@@ -80,7 +80,7 @@ function getConfigFromLocalStorage(): Configuraciones {
   }
 
   try {
-    const saved = localStorage.getItem('peluqueria_config')
+    const saved = localStorage.getItem('stylo_config')
     if (saved) {
       const config = JSON.parse(saved)
       // Actualizar cache
@@ -100,7 +100,7 @@ export function saveConfigToLocalStorage(config: Configuraciones) {
   if (typeof window === 'undefined') return
   
   try {
-    localStorage.setItem('peluqueria_config', JSON.stringify(config))
+    localStorage.setItem('stylo_config', JSON.stringify(config))
     // Actualizar cache
     configCache = config
     configCacheTime = Date.now()
@@ -113,15 +113,15 @@ export function saveConfigToLocalStorage(config: Configuraciones) {
 function getDefaultConfig(): Configuraciones {
   const defaultConfig: Configuraciones = {
     moneda: {
-      simbolo: '€',
-      nombre: 'EUR',
-      posicion: 'after',
+      simbolo: '$',
+      nombre: 'USD',
+      posicion: 'before',
       decimales: 2
     },
     negocio: {
-      nombre: 'Peluquería Elegance',
-      telefono: '+34 666 123 456',
-      direccion: 'Calle Principal 123, Madrid',
+      nombre: 'Stylo - Salón de Belleza',
+      telefono: '+1 (555) 123-4567',
+      direccion: 'Av. Principal 123, Ciudad',
       horario_apertura: '09:00',
       horario_cierre: '20:00'
     }
@@ -129,7 +129,7 @@ function getDefaultConfig(): Configuraciones {
   
   // Guardar en localStorage si no existe
   if (typeof window !== 'undefined') {
-    const saved = localStorage.getItem('peluqueria_config')
+    const saved = localStorage.getItem('stylo_config')
     if (!saved) {
       saveConfigToLocalStorage(defaultConfig)
     }
