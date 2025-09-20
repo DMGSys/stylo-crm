@@ -33,6 +33,7 @@ model User {
   accounts     Account[]
   movimientos  MovimientoInventario[]
   roleCustom   Role?    @relation(fields: [roleId], references: [id])
+  historialRegistros HistorialCliente[] @relation("HistorialUsuario")
 
   @@map("users")
 }
@@ -54,24 +55,55 @@ model Role {
 }
 
 model Cliente {
-  id                String   @id @default(cuid())
+  id                String      @id @default(cuid())
   nombre            String
   apellido          String
   telefono          String?
   email             String?
   direccion         String?
-  tipoPelo          TipoPelo @default(LISO)
-  colorOriginalPelo String?  // Color natural del cabello
+  
+  // Características físicas del cabello
+  tipoPelo          TipoPelo    @default(LISO)
+  largoPelo         LargoPelo   @default(MEDIANO)
+  colorOriginalPelo String?     // Color natural del cabello
+  colorActualPelo   String?     // Color actual (después de tintes)
+  texturaPelo       String?     // Grueso, fino, normal
+  densidadPelo      String?     // Poco, normal, abundante
+  
+  // Información adicional
   redesSociales     String?
   fotos             String?
+  alergias          String?     // Alergias conocidas
+  preferencias      String?     // Preferencias del cliente
   notas             String?
-  activo            Boolean  @default(true)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  activo            Boolean     @default(true)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
 
   citas Cita[]
+  historialCambios HistorialCliente[]
 
   @@map("clientes")
+}
+
+model HistorialCliente {
+  id               String   @id @default(cuid())
+  clienteId        String
+  citaId           String?  // Referencia a la cita relacionada
+  tipoRegistro     String   // SERVICIO, CAMBIO_FISICO, FOTO, NOTA
+  titulo           String   // Título del registro
+  descripcion      String?  // Descripción detallada
+  datosAntes       Json?    // Estado anterior (para cambios físicos)
+  datosDespues     Json?    // Estado posterior (para cambios físicos)
+  fotos            String?  // URLs de fotos relacionadas
+  usuarioId        String?  // Quien realizó el registro
+  createdAt        DateTime @default(now())
+
+  cliente Cliente @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  cita    Cita?   @relation("HistorialCita", fields: [citaId], references: [id])
+  usuario User?   @relation("HistorialUsuario", fields: [usuarioId], references: [id])
+
+  @@map("historial_clientes")
 }
 
 model Cita {
@@ -97,6 +129,7 @@ model Cita {
   usuario    User?      @relation(fields: [usuarioId], references: [id])
   servicioRef Servicio? @relation("ServicioCita", fields: [servicioId], references: [id])
   promocion  Promocion? @relation("PromocionCita", fields: [promocionId], references: [id])
+  historialRegistros HistorialCliente[] @relation("HistorialCita")
   movimientos MovimientoInventario[]
 
   @@map("citas")
@@ -113,6 +146,15 @@ enum TipoPelo {
   TEÑIDO
   ONDULADO
   MIXTO
+}
+
+enum LargoPelo {
+  RAPADO      // 0-5mm
+  MUY_CORTO   // 5-15mm
+  CORTO       // 15-50mm
+  MEDIANO     // 50-150mm
+  LARGO       // 150-300mm
+  MUY_LARGO   // 300mm+
 }
 
 enum EstadoCita {

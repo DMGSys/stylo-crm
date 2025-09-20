@@ -16,6 +16,8 @@ import {
   CurrencyDollarIcon
 } from '@heroicons/react/24/outline'
 import { usePriceFormatter } from '@/lib/config'
+import ClienteCaracteristicas from '@/components/ClienteCaracteristicas'
+import ClienteHistorial from '@/components/ClienteHistorial'
 
 interface Cliente {
   id: string
@@ -24,13 +26,25 @@ interface Cliente {
   telefono?: string
   email?: string
   direccion?: string
+  
+  // Características físicas del cabello
   tipoPelo: string
+  largoPelo?: string
   colorOriginalPelo?: string
+  colorActualPelo?: string
+  texturaPelo?: string
+  densidadPelo?: string
+  
+  // Información adicional
   redesSociales?: string
   fotos?: string
+  alergias?: string
+  preferencias?: string
   notas?: string
+  activo: boolean
   createdAt: string
   updatedAt: string
+  
   citas: Array<{
     id: string
     fecha: string
@@ -39,6 +53,26 @@ interface Cliente {
     servicio?: string
     precio?: number
     notas?: string
+  }>
+  
+  historialCambios?: Array<{
+    id: string
+    tipoRegistro: string
+    titulo: string
+    descripcion?: string
+    datosAntes?: any
+    datosDespues?: any
+    fotos?: string
+    createdAt: string
+    usuario?: {
+      name?: string
+      email: string
+    }
+    cita?: {
+      id: string
+      servicio?: string
+      precio?: number
+    }
   }>
 }
 
@@ -294,12 +328,22 @@ export default function ClienteDetailPage() {
                     </span>
                   </dd>
                 </div>
-                {cliente.colorOriginalPelo && (
+                {cliente.alergias && (
                   <div>
-                    <dt className="text-sm font-medium text-gray-500">Color Original del Pelo</dt>
+                    <dt className="text-sm font-medium text-gray-500">Alergias</dt>
+                    <dd className="mt-1 text-sm text-red-700 flex items-center">
+                      <span className="inline-flex items-center">
+                        ⚠️ <span className="ml-2">{cliente.alergias}</span>
+                      </span>
+                    </dd>
+                  </div>
+                )}
+                {cliente.preferencias && (
+                  <div>
+                    <dt className="text-sm font-medium text-gray-500">Preferencias</dt>
                     <dd className="mt-1 text-sm text-gray-900 flex items-center">
                       <span className="inline-flex items-center">
-                        🎨 <span className="ml-2 capitalize">{cliente.colorOriginalPelo}</span>
+                        💡 <span className="ml-2">{cliente.preferencias}</span>
                       </span>
                     </dd>
                   </div>
@@ -351,6 +395,28 @@ export default function ClienteDetailPage() {
               </dl>
             </div>
           </div>
+
+          {/* Características del Cabello */}
+          <ClienteCaracteristicas
+            caracteristicas={{
+              tipoPelo: cliente.tipoPelo,
+              largoPelo: cliente.largoPelo,
+              colorOriginalPelo: cliente.colorOriginalPelo,
+              colorActualPelo: cliente.colorActualPelo,
+              texturaPelo: cliente.texturaPelo,
+              densidadPelo: cliente.densidadPelo
+            }}
+            className="col-span-1 lg:col-span-2"
+          />
+
+          {/* Historial Detallado */}
+          {cliente.historialCambios && cliente.historialCambios.length > 0 && (
+            <ClienteHistorial
+              clienteId={cliente.id}
+              historial={cliente.historialCambios}
+              className="col-span-1 lg:col-span-2"
+            />
+          )}
 
           {/* Historial de Citas */}
           <div className="bg-white shadow rounded-lg">

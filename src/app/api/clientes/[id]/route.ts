@@ -25,6 +25,26 @@ export async function GET(
           orderBy: {
             fecha: "desc"
           }
+        },
+        historialCambios: {
+          include: {
+            usuario: {
+              select: {
+                name: true,
+                email: true
+              }
+            },
+            cita: {
+              select: {
+                id: true,
+                servicio: true,
+                precio: true
+              }
+            }
+          },
+          orderBy: {
+            createdAt: "desc"
+          }
         }
       }
     })
