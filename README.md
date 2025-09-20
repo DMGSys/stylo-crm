@@ -165,6 +165,47 @@ La aplicación estará disponible en `http://localhost:3000`
 - **Contraseña**: estilista123
 - **Permisos**: Gestión de citas y clientes
 
+## 🎭 **Sistema de Roles Personalizados**
+
+Stylo incluye un sistema avanzado de roles que permite crear perfiles de usuario específicos para cada tipo de empleado en tu salón.
+
+### 🏗️ **Arquitectura de Roles**
+
+El sistema utiliza un **modelo híbrido**:
+- **Roles Base**: ADMINISTRADOR y ESTILISTA (compatibilidad)
+- **Roles Personalizados**: Roles específicos con permisos granulares
+
+### 👑 **8 Roles Predefinidos**
+
+| Rol | Icono | Permisos | Uso Principal |
+|-----|-------|----------|---------------|
+| **Super Administrador** | 👑 | 29 | Dueño del salón, acceso total |
+| **Gerente** | 👔 | 21 | Gestión operativa diaria |
+| **Estilista Senior** | ✂️ | 12 | Experiencia + gestión servicios |
+| **Estilista** | 💇‍♀️ | 9 | Trabajo básico clientes/citas |
+| **Recepcionista** | 📞 | 9 | Atención cliente, agendado |
+| **Asistente** | 🤝 | 6 | Apoyo básico, solo lectura |
+| **Manicurista** | 💅 | 9 | Especialista en uñas |
+| **Barbero** | 👨‍🦲 | 9 | Especialista cortes masculinos |
+
+### 🎯 **Casos de Uso por Negocio**
+
+#### **💇‍♀️ Peluquería**: Dueño→Super Admin, Encargado→Gerente, Estilistas→Estilista/Senior, Recepción→Recepcionista
+#### **👨‍🦲 Barbería**: Dueño→Super Admin, Gerente→Gerente, Barberos→Barbero, Recepción→Recepcionista
+#### **💅 Salón Uñas**: Dueño→Super Admin, Supervisora→Gerente, Manicuristas→Manicurista
+#### **🏢 Multiservicios**: Combinación de todos los roles según especialidades
+
+### 🛡️ **Sistema de Permisos Granulares**
+
+**Módulos**: Usuarios, Clientes, Citas, Servicios, Productos, Configuración, Auditoría, Roles, Reportes  
+**Acciones**: Create, Read, Update, Delete, Export
+
+### 🎨 **Gestión Visual** (`/dashboard/roles`)
+- 📊 Estadísticas en tiempo real
+- 🎨 Colores e iconos únicos por rol
+- 🔍 Vista expandible de permisos detallados
+- ⚡ Acciones: crear, editar, activar/desactivar, eliminar
+
 ## 📋 Funcionalidades Detalladas
 
 ### 🎯 **Dashboard Principal**
