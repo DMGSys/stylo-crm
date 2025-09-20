@@ -1,0 +1,306 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?    
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String?
+  email         String   @unique
+  password      String?
+  role          UserRole @default(ESTILISTA)
+  emailVerified DateTime?
+  image         String?
+  activo        Boolean  @default(true)
+  ultimoAcceso  DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  citas        Cita[]
+  auditLogs    AuditLog[]
+  sessions     Session[]
+  accounts     Account[]
+  movimientos  MovimientoInventario[]
+
+  @@map("users")
+}
+
+model Cliente {
+  id           String   @id @default(cuid())
+  nombre       String
+  apellido     String
+  telefono     String?
+  email        String?
+  tipoPelo     TipoPelo @default(LISO)
+  redesSociales String?
+  fotos        String?
+  notas        String?
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  citas Cita[]
+
+  @@map("clientes")
+}
+
+model Cita {
+  id              String    @id @default(cuid())
+  clienteId       String
+  usuarioId       String?
+  servicioId      String?   // Referencia al servicio seleccionado
+  promocionId     String?   // Promoción aplicada
+  fecha           DateTime
+  hora            String
+  estado          EstadoCita @default(PENDIENTE)
+  servicio        String?   // Texto libre (legacy)
+  precio          Float?
+  precioOriginal  Float?    // Precio antes de descuentos
+  descuento       Float?    // Descuento aplicado
+  notas           String?
+  fotos           String?
+  recordatorio    Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  cliente    Cliente    @relation(fields: [clienteId], references: [id], onDelete: Cascade)
+  usuario    User?      @relation(fields: [usuarioId], references: [id])
+  servicioRef Servicio? @relation("ServicioCita", fields: [servicioId], references: [id])
+  promocion  Promocion? @relation("PromocionCita", fields: [promocionId], references: [id])
+  movimientos MovimientoInventario[]
+
+  @@map("citas")
+}
+
+enum UserRole {
+  ADMINISTRADOR
+  ESTILISTA
+}
+
+enum TipoPelo {
+  LISO
+  RIZADO
+  TEÑIDO
+  ONDULADO
+  MIXTO
+}
+
+enum EstadoCita {
+  PENDIENTE
+  CONFIRMADA
+  REALIZADA
+  CANCELADA
+  REAGENDADA
+}
+
+model Configuracion {
+  id        String   @id @default(cuid())
+  clave     String   @unique
+  valor     String
+  tipo      String   // 'string', 'number', 'boolean'
+  categoria String   // 'general', 'moneda', 'notificaciones', etc.
+  descripcion String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("configuraciones")
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  usuarioId   String?
+  accion      String   // 'CREATE', 'UPDATE', 'DELETE'
+  entidad     String   // 'Cliente', 'Cita', 'User', etc.
+  entidadId   String   // ID del registro afectado
+  datosAntes  String?  // JSON de los datos antes del cambio
+  datosDespues String? // JSON de los datos después del cambio
+  ip          String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  usuario User? @relation(fields: [usuarioId], references: [id])
+
+  @@map("audit_logs")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Categoria {
+  id          String   @id @default(cuid())
+  nombre      String   @unique
+  descripcion String?
+  color       String?  // Color hex para la UI
+  icono       String?  // Emoji o clase de icono
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  servicios Servicio[]
+  productos Producto[]
+
+  @@map("categorias")
+}
+
+model Servicio {
+  id               String   @id @default(cuid())
+  nombre           String
+  descripcion      String?
+  categoriaId      String
+  precioBase       Float
+  precioVenta      Float?   // Precio final con margen
+  duracionMinutos  Int      @default(30)
+  activo           Boolean  @default(true)
+  requiereProductos Boolean @default(false)
+  notas            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  categoria         Categoria @relation(fields: [categoriaId], references: [id])
+  citas            Cita[]    @relation("ServicioCita")
+  servicioProductos ServicioProducto[]
+  promociones      PromocionServicio[]
+
+  @@map("servicios")
+}
+
+model Producto {
+  id            String   @id @default(cuid())
+  nombre        String
+  descripcion   String?
+  categoriaId   String
+  marca         String?
+  codigo        String?  @unique
+  precioCosto   Float
+  precioVenta   Float
+  stock         Int      @default(0)
+  stockMinimo   Int      @default(5)
+  unidadMedida  String   @default("unidad") // unidad, ml, gr, etc.
+  activo        Boolean  @default(true)
+  fechaVencimiento DateTime?
+  proveedor     String?
+  notas         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  categoria         Categoria @relation(fields: [categoriaId], references: [id])
+  servicioProductos ServicioProducto[]
+  movimientos      MovimientoInventario[]
+
+  @@map("productos")
+}
+
+model ServicioProducto {
+  id         String  @id @default(cuid())
+  servicioId String
+  productoId String
+  cantidad   Float   @default(1)
+  obligatorio Boolean @default(false)
+
+  servicio Servicio @relation(fields: [servicioId], references: [id], onDelete: Cascade)
+  producto Producto @relation(fields: [productoId], references: [id], onDelete: Cascade)
+
+  @@unique([servicioId, productoId])
+  @@map("servicio_productos")
+}
+
+model MovimientoInventario {
+  id         String   @id @default(cuid())
+  productoId String
+  tipo       TipoMovimiento
+  cantidad   Int
+  motivo     String?
+  usuarioId  String?
+  citaId     String?   // Si el movimiento es por una cita
+  createdAt  DateTime @default(now())
+
+  producto Producto @relation(fields: [productoId], references: [id])
+  usuario  User?    @relation(fields: [usuarioId], references: [id])
+  cita     Cita?    @relation(fields: [citaId], references: [id])
+
+  @@map("movimientos_inventario")
+}
+
+model Promocion {
+  id           String   @id @default(cuid())
+  nombre       String
+  descripcion  String?
+  tipo         TipoPromocion
+  valor        Float    // Porcentaje o valor fijo
+  fechaInicio  DateTime
+  fechaFin     DateTime
+  activo       Boolean  @default(true)
+  usoMaximo    Int?     // Máximo de usos
+  usoActual    Int      @default(0)
+  condiciones  String?  // JSON con condiciones específicas
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  servicios PromocionServicio[]
+  citas     Cita[]            @relation("PromocionCita")
+
+  @@map("promociones")
+}
+
+model PromocionServicio {
+  id          String @id @default(cuid())
+  promocionId String
+  servicioId  String
+
+  promocion Promocion @relation(fields: [promocionId], references: [id], onDelete: Cascade)
+  servicio  Servicio  @relation(fields: [servicioId], references: [id], onDelete: Cascade)
+
+  @@unique([promocionId, servicioId])
+  @@map("promocion_servicios")
+}
+
+enum TipoMovimiento {
+  ENTRADA
+  SALIDA
+  AJUSTE
+  VENCIMIENTO
+}
+
+enum TipoPromocion {
+  PORCENTAJE
+  VALOR_FIJO
+  DOS_POR_UNO
+  DESCUENTO_SEGUNDA_UNIDAD
+}
