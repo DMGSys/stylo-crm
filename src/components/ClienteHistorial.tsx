@@ -6,7 +6,7 @@ import {
   UserIcon,
   CameraIcon,
   PencilIcon,
-  ColorSwatchIcon,
+  SwatchIcon,
   ScissorsIcon,
   ChatBubbleLeftIcon,
   ChevronDownIcon,
@@ -61,7 +61,7 @@ export default function ClienteHistorial({
   const getTipoIcon = (tipo: string) => {
     const icons = {
       SERVICIO: ScissorsIcon,
-      CAMBIO_FISICO: ColorSwatchIcon,
+      CAMBIO_FISICO: SwatchIcon,
       FOTO: CameraIcon,
       NOTA: ChatBubbleLeftIcon
     }
