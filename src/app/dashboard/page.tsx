@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useAuthRequired } from '@/lib/auth'
 import {
   UsersIcon,
   CalendarIcon,
@@ -17,6 +18,7 @@ interface Stats {
 }
 
 export default function Dashboard() {
+  const { user } = useAuthRequired()
   const [stats, setStats] = useState<Stats>({
     totalClientes: 0,
     citasHoy: 0,
@@ -122,9 +124,14 @@ export default function Dashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">
-            ¡Hola, Administrador!
+            ¡Hola, {user?.name ? user.name.split(' ')[0] : user?.role || 'Usuario'}!
           </h1>
-          <p className="text-gray-600">Bienvenido a tu panel de peluquería</p>
+          <p className="text-gray-600">
+            {user?.role === 'ADMINISTRADOR' 
+              ? 'Gestión completa del salón y sistema'
+              : 'Gestión de clientes y citas'
+            }
+          </p>
         </div>
         <div className="flex space-x-3">
           <Link
