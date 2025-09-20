@@ -35,6 +35,23 @@ interface Categoria {
   nombre: string
 }
 
+interface Producto {
+  id: string
+  nombre: string
+  precioCompra: number
+  precioVenta?: number
+  stock: number
+  unidadMedida: string
+}
+
+interface ServicioProducto {
+  id: string
+  productoId: string
+  cantidad: number
+  obligatorio: boolean
+  producto: Producto
+}
+
 export default function EditarServicioPage() {
   const params = useParams()
   const router = useRouter()
@@ -43,6 +60,8 @@ export default function EditarServicioPage() {
   
   const [servicio, setServicio] = useState<Servicio | null>(null)
   const [categorias, setCategorias] = useState<Categoria[]>([])
+  const [productos, setProductos] = useState<Producto[]>([])
+  const [servicioProductos, setServicioProductos] = useState<ServicioProducto[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState({
@@ -61,6 +80,7 @@ export default function EditarServicioPage() {
     if (params.id) {
       fetchServicio(params.id as string)
       fetchCategorias()
+      fetchProductos()
     }
   }, [params.id])
 
@@ -70,6 +90,7 @@ export default function EditarServicioPage() {
       if (response.ok) {
         const data = await response.json()
         setServicio(data)
+        setServicioProductos(data.servicioProductos || [])
         setFormData({
           nombre: data.nombre,
           descripcion: data.descripcion || '',
@@ -101,6 +122,18 @@ export default function EditarServicioPage() {
     }
   }
 
+  const fetchProductos = async () => {
+    try {
+      const response = await fetch('/api/productos?limit=100')
+      if (response.ok) {
+        const data = await response.json()
+        setProductos(data.productos || [])
+      }
+    } catch (error) {
+      console.error('Error al cargar productos:', error)
+    }
+  }
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target
     
@@ -126,7 +159,12 @@ export default function EditarServicioPage() {
           ...formData,
           precioBase: parseFloat(formData.precioBase),
           precioVenta: formData.precioVenta ? parseFloat(formData.precioVenta) : null,
-          duracionMinutos: parseInt(formData.duracionMinutos)
+          duracionMinutos: parseInt(formData.duracionMinutos),
+          productos: servicioProductos.map(sp => ({
+            productoId: sp.productoId,
+            cantidad: sp.cantidad,
+            obligatorio: sp.obligatorio
+          }))
         }),
       })
 
@@ -174,6 +212,46 @@ export default function EditarServicioPage() {
       const mins = minutos % 60
       return mins > 0 ? `${horas}h ${mins}min` : `${horas}h`
     }
+  }
+
+  const agregarProducto = (productoId: string, cantidad: number = 1, obligatorio: boolean = false) => {
+    const producto = productos.find(p => p.id === productoId)
+    if (!producto) return
+
+    const yaExiste = servicioProductos.find(sp => sp.productoId === productoId)
+    if (yaExiste) return
+
+    const nuevoServicioProducto: ServicioProducto = {
+      id: `temp-${Date.now()}`, // ID temporal
+      productoId,
+      cantidad,
+      obligatorio,
+      producto
+    }
+
+    setServicioProductos(prev => [...prev, nuevoServicioProducto])
+  }
+
+  const actualizarProducto = (productoId: string, cantidad: number, obligatorio: boolean) => {
+    setServicioProductos(prev => 
+      prev.map(sp => 
+        sp.productoId === productoId 
+          ? { ...sp, cantidad, obligatorio }
+          : sp
+      )
+    )
+  }
+
+  const eliminarProducto = (productoId: string) => {
+    setServicioProductos(prev => prev.filter(sp => sp.productoId !== productoId))
+  }
+
+  const calcularCostoProductos = () => {
+    return servicioProductos.reduce((total, sp) => {
+      const precioCompra = sp.producto.precioCompra || 0
+      const cantidad = sp.cantidad || 0
+      return total + (precioCompra * cantidad)
+    }, 0)
   }
 
   if (loading) {
@@ -500,6 +578,122 @@ export default function EditarServicioPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* Gestión de Productos (solo si requiere productos) */}
+                {formData.requiereProductos && (
+                  <div className="mt-6 pt-6 border-t border-gray-200">
+                    <h4 className="text-sm font-medium text-gray-700 flex items-center mb-4">
+                      <span className="text-purple-500 mr-2">📦</span>
+                      Productos Requeridos
+                    </h4>
+                    
+                    {/* Agregar Producto */}
+                    <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <select
+                          onChange={(e) => {
+                            if (e.target.value) {
+                              agregarProducto(e.target.value)
+                              e.target.value = '' // Limpiar selección
+                            }
+                          }}
+                          className="flex-1 px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="">Seleccionar producto...</option>
+                          {productos
+                            .filter(p => !servicioProductos.find(sp => sp.productoId === p.id))
+                            .map((producto) => (
+                              <option key={producto.id} value={producto.id}>
+                                {producto.nombre} - {formatPrice(producto.precioCompra || 0)} ({producto.stock} {producto.unidadMedida})
+                              </option>
+                            ))}
+                        </select>
+                      </div>
+                    </div>
+
+                    {/* Lista de Productos */}
+                    {servicioProductos.length > 0 && (
+                      <div className="space-y-3">
+                        {servicioProductos.map((sp) => (
+                          <div key={sp.productoId} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
+                            <div className="flex-1">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <h5 className="text-sm font-medium text-gray-900">{sp.producto.nombre}</h5>
+                                  <p className="text-xs text-gray-500">
+                                    Stock: {sp.producto.stock} {sp.producto.unidadMedida} • 
+                                    Costo: {formatPrice(sp.producto.precioCompra || 0)} cada uno
+                                  </p>
+                                </div>
+                                <div className="text-right">
+                                  <p className="text-sm font-medium text-gray-900">
+                                    {formatPrice((sp.producto.precioCompra || 0) * sp.cantidad)}
+                                  </p>
+                                  <p className="text-xs text-gray-500">
+                                    {sp.cantidad} × {formatPrice(sp.producto.precioCompra || 0)}
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center justify-between mt-2">
+                                <div className="flex items-center space-x-3">
+                                  <div className="flex items-center space-x-2">
+                                    <label className="text-xs text-gray-600">Cantidad:</label>
+                                    <input
+                                      type="number"
+                                      min="0.1"
+                                      step="0.1"
+                                      value={sp.cantidad}
+                                      onChange={(e) => actualizarProducto(sp.productoId, parseFloat(e.target.value), sp.obligatorio)}
+                                      className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                    />
+                                    <span className="text-xs text-gray-500">{sp.producto.unidadMedida}</span>
+                                  </div>
+                                  
+                                  <label className="flex items-center">
+                                    <input
+                                      type="checkbox"
+                                      checked={sp.obligatorio}
+                                      onChange={(e) => actualizarProducto(sp.productoId, sp.cantidad, e.target.checked)}
+                                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                    />
+                                    <span className="ml-1 text-xs text-gray-600">Obligatorio</span>
+                                  </label>
+                                </div>
+                                
+                                <button
+                                  type="button"
+                                  onClick={() => eliminarProducto(sp.productoId)}
+                                  className="text-red-600 hover:text-red-800 text-sm"
+                                >
+                                  ❌ Quitar
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        
+                        {/* Resumen de Costos */}
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="font-medium text-blue-900">Costo total de productos:</span>
+                            <span className="font-bold text-blue-900">{formatPrice(calcularCostoProductos())}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm mt-1">
+                            <span className="text-blue-800">Precio base del servicio:</span>
+                            <span className="text-blue-800">{formatPrice(parseFloat(formData.precioBase) || 0)}</span>
+                          </div>
+                          <div className="flex items-center justify-between text-sm mt-1 pt-1 border-t border-blue-200">
+                            <span className="font-bold text-blue-900">Costo total:</span>
+                            <span className="font-bold text-blue-900">
+                              {formatPrice((parseFloat(formData.precioBase) || 0) + calcularCostoProductos())}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -160,6 +160,51 @@ export default function CitaDetailPage() {
     })
   }
 
+  const updateEstado = async (nuevoEstado: string) => {
+    try {
+      const response = await fetch(`/api/citas/${params.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ estado: nuevoEstado }),
+      })
+
+      if (response.ok) {
+        // Si se marca como realizada, descontar inventario
+        if (nuevoEstado === 'REALIZADA' && cita?.servicioId) {
+          try {
+            const user = JSON.parse(localStorage.getItem('user') || '{}')
+            const inventarioResponse = await fetch('/api/inventario/movimiento', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                citaId: params.id,
+                usuarioId: user.id
+              }),
+            })
+            
+            if (inventarioResponse.ok) {
+              console.log('✅ Inventario actualizado correctamente')
+            }
+          } catch (error) {
+            console.warn('⚠️ Error al actualizar inventario:', error)
+            // No mostrar error al usuario, es un proceso secundario
+          }
+        }
+        
+        fetchCita(params.id as string)
+      } else {
+        throw new Error('Error al actualizar estado')
+      }
+    } catch (error) {
+      console.error('Error al actualizar estado:', error)
+      alert('Error al actualizar el estado. Inténtalo de nuevo.')
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">

@@ -71,6 +71,26 @@ export async function PATCH(
       }
     }
 
+    // Si se proporcionan productos, actualizar las relaciones
+    if (data.productos && Array.isArray(data.productos)) {
+      // Eliminar productos existentes
+      await prisma.servicioProducto.deleteMany({
+        where: { servicioId: id }
+      })
+
+      // Agregar nuevos productos
+      for (const producto of data.productos) {
+        await prisma.servicioProducto.create({
+          data: {
+            servicioId: id,
+            productoId: producto.productoId,
+            cantidad: producto.cantidad,
+            obligatorio: producto.obligatorio
+          }
+        })
+      }
+    }
+
     // Actualizar el servicio
     const servicioActualizado = await prisma.servicio.update({
       where: { id },
@@ -86,7 +106,12 @@ export async function PATCH(
         notas: data.notas || null
       },
       include: {
-        categoria: true
+        categoria: true,
+        servicioProductos: {
+          include: {
+            producto: true
+          }
+        }
       }
     })
 

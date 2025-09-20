@@ -29,11 +29,24 @@ interface Servicio {
   precioBase: number
   precioVenta?: number
   duracionMinutos: number
+  requiereProductos: boolean
   categoria: {
     id: string
     nombre: string
     icono?: string
   }
+  servicioProductos?: {
+    id: string
+    cantidad: number
+    obligatorio: boolean
+    producto: {
+      id: string
+      nombre: string
+      precioCompra: number
+      unidadMedida: string
+      stock: number
+    }
+  }[]
 }
 
 export default function NuevaCitaPage() {
@@ -489,10 +502,39 @@ export default function NuevaCitaPage() {
                             {getServicioSeleccionado()!.categoria.nombre}
                           </span>
                         </div>
+                        
                         {getServicioSeleccionado()!.descripcion && (
                           <p className="mt-1 text-xs text-blue-700">
                             {getServicioSeleccionado()!.descripcion}
                           </p>
+                        )}
+                        
+                        {/* Productos requeridos */}
+                        {getServicioSeleccionado()!.requiereProductos && getServicioSeleccionado()!.servicioProductos && getServicioSeleccionado()!.servicioProductos!.length > 0 && (
+                          <div className="mt-2 pt-2 border-t border-blue-200">
+                            <h5 className="text-xs font-medium text-blue-800 mb-1">📦 Productos requeridos:</h5>
+                            <div className="space-y-1">
+                              {getServicioSeleccionado()!.servicioProductos!.map((sp) => (
+                                <div key={sp.id} className="flex items-center justify-between text-xs text-blue-700">
+                                  <span>
+                                    {sp.producto.nombre} ({sp.cantidad} {sp.producto.unidadMedida})
+                                    {sp.obligatorio && <span className="text-red-600 ml-1">*</span>}
+                                  </span>
+                                  <span className="font-medium">
+                                    {formatPrice(sp.producto.precioCompra * sp.cantidad)}
+                                  </span>
+                                </div>
+                              ))}
+                              <div className="flex items-center justify-between text-xs font-medium text-blue-800 pt-1 border-t border-blue-200">
+                                <span>Costo productos:</span>
+                                <span>
+                                  {formatPrice(getServicioSeleccionado()!.servicioProductos!.reduce((total, sp) => 
+                                    total + (sp.producto.precioCompra * sp.cantidad), 0
+                                  ))}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                         )}
                       </div>
                     )}

@@ -177,6 +177,11 @@ export function usePriceFormatter() {
   const { config } = useConfiguraciones()
   
   const formatPrice = (precio: number): string => {
+    // Validar que precio sea un número válido
+    if (precio === null || precio === undefined || isNaN(precio)) {
+      precio = 0
+    }
+    
     if (!config) {
       return `${precio.toFixed(2)}€` // Fallback
     }
