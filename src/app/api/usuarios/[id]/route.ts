@@ -20,7 +20,7 @@ export async function GET(
         activo: true,
         createdAt: true,
         updatedAt: true,
-        lastLogin: true,
+        ultimoAcceso: true,
         _count: {
           select: {
             citas: true,
@@ -140,7 +140,7 @@ export async function PATCH(
         activo: true,
         createdAt: true,
         updatedAt: true,
-        lastLogin: true,
+        ultimoAcceso: true,
         _count: {
           select: {
             citas: true,

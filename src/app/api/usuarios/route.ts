@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
           activo: true,
           createdAt: true,
           updatedAt: true,
-          lastLogin: true,
+          ultimoAcceso: true,
           _count: {
             select: {
               citas: true,

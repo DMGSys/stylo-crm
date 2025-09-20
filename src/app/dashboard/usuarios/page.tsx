@@ -25,7 +25,7 @@ interface Usuario {
   activo?: boolean
   createdAt: string
   updatedAt: string
-  lastLogin?: string
+  ultimoAcceso?: string
   _count?: {
     citas: number
     auditLogs: number
@@ -308,9 +308,9 @@ export default function UsuariosPage() {
                           </div>
                           <div className="mt-1 text-xs text-gray-400">
                             Creado: {new Date(usuario.createdAt).toLocaleDateString('es-ES')}
-                            {usuario.lastLogin && (
+                            {usuario.ultimoAcceso && (
                               <span className="ml-2">
-                                • Último acceso: {new Date(usuario.lastLogin).toLocaleDateString('es-ES')}
+                                • Último acceso: {new Date(usuario.ultimoAcceso).toLocaleDateString('es-ES')}
                               </span>
                             )}
                           </div>
