@@ -46,8 +46,14 @@ export default function EditarClientePage() {
     email: '',
     direccion: '',
     tipoPelo: 'LISO',
+    largoPelo: 'MEDIANO',
     colorOriginalPelo: '',
+    colorActualPelo: '',
+    texturaPelo: '',
+    densidadPelo: '',
     redesSociales: '',
+    alergias: '',
+    preferencias: '',
     notas: ''
   })
 
@@ -72,8 +78,14 @@ export default function EditarClientePage() {
           email: data.email || '',
           direccion: data.direccion || '',
           tipoPelo: data.tipoPelo || 'LISO',
+          largoPelo: data.largoPelo || 'MEDIANO',
           colorOriginalPelo: data.colorOriginalPelo || '',
+          colorActualPelo: data.colorActualPelo || '',
+          texturaPelo: data.texturaPelo || '',
+          densidadPelo: data.densidadPelo || '',
           redesSociales: data.redesSociales || '',
+          alergias: data.alergias || '',
+          preferencias: data.preferencias || '',
           notas: data.notas || ''
         })
 
@@ -165,8 +177,14 @@ export default function EditarClientePage() {
           email: formData.email.trim() || undefined,
           direccion: formData.direccion.trim() || undefined,
           tipoPelo: formData.tipoPelo,
+          largoPelo: formData.largoPelo,
           colorOriginalPelo: formData.colorOriginalPelo.trim() || undefined,
+          colorActualPelo: formData.colorActualPelo.trim() || undefined,
+          texturaPelo: formData.texturaPelo.trim() || undefined,
+          densidadPelo: formData.densidadPelo.trim() || undefined,
           redesSociales: formData.redesSociales.trim() || undefined,
+          alergias: formData.alergias.trim() || undefined,
+          preferencias: formData.preferencias.trim() || undefined,
           fotos: photoPreview || undefined,
           notas: formData.notas.trim() || undefined
         })
@@ -406,6 +424,25 @@ export default function EditarClientePage() {
                   </div>
                   
                   <div>
+                    <label htmlFor="largoPelo" className="block text-sm font-medium text-gray-700">
+                      Largo del Pelo
+                    </label>
+                    <select
+                      id="largoPelo"
+                      value={formData.largoPelo}
+                      onChange={(e) => handleInputChange('largoPelo', e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    >
+                      <option value="RAPADO" className="text-gray-900 bg-white">👨‍🦲 Rapado (0-5mm)</option>
+                      <option value="MUY_CORTO" className="text-gray-900 bg-white">👦 Muy Corto (5-15mm)</option>
+                      <option value="CORTO" className="text-gray-900 bg-white">🧑‍🦰 Corto (15-50mm)</option>
+                      <option value="MEDIANO" className="text-gray-900 bg-white">👩‍🦰 Mediano (50-150mm)</option>
+                      <option value="LARGO" className="text-gray-900 bg-white">👩‍🦳 Largo (150-300mm)</option>
+                      <option value="MUY_LARGO" className="text-gray-900 bg-white">👸 Muy Largo (300mm+)</option>
+                    </select>
+                  </div>
+
+                  <div>
                     <label htmlFor="colorOriginalPelo" className="block text-sm font-medium text-gray-700">
                       Color Original del Pelo
                     </label>
@@ -427,6 +464,65 @@ export default function EditarClientePage() {
                       <option value="gris" className="text-gray-900 bg-white">Gris</option>
                       <option value="blanco" className="text-gray-900 bg-white">Blanco</option>
                       <option value="otro" className="text-gray-900 bg-white">Otro</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="colorActualPelo" className="block text-sm font-medium text-gray-700">
+                      Color Actual del Pelo
+                    </label>
+                    <select
+                      id="colorActualPelo"
+                      value={formData.colorActualPelo}
+                      onChange={(e) => handleInputChange('colorActualPelo', e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    >
+                      <option value="" className="text-gray-500 bg-white">Seleccionar color...</option>
+                      <option value="negro" className="text-gray-900 bg-white">Negro</option>
+                      <option value="castaño oscuro" className="text-gray-900 bg-white">Castaño Oscuro</option>
+                      <option value="castaño" className="text-gray-900 bg-white">Castaño</option>
+                      <option value="castaño claro" className="text-gray-900 bg-white">Castaño Claro</option>
+                      <option value="rubio oscuro" className="text-gray-900 bg-white">Rubio Oscuro</option>
+                      <option value="rubio" className="text-gray-900 bg-white">Rubio</option>
+                      <option value="rubio claro" className="text-gray-900 bg-white">Rubio Claro</option>
+                      <option value="pelirrojo" className="text-gray-900 bg-white">Pelirrojo</option>
+                      <option value="gris" className="text-gray-900 bg-white">Gris</option>
+                      <option value="blanco" className="text-gray-900 bg-white">Blanco</option>
+                      <option value="otro" className="text-gray-900 bg-white">Otro</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="texturaPelo" className="block text-sm font-medium text-gray-700">
+                      Textura del Pelo
+                    </label>
+                    <select
+                      id="texturaPelo"
+                      value={formData.texturaPelo}
+                      onChange={(e) => handleInputChange('texturaPelo', e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    >
+                      <option value="" className="text-gray-500 bg-white">Seleccionar textura...</option>
+                      <option value="fino" className="text-gray-900 bg-white">🔸 Fino</option>
+                      <option value="normal" className="text-gray-900 bg-white">🔹 Normal</option>
+                      <option value="grueso" className="text-gray-900 bg-white">🔵 Grueso</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label htmlFor="densidadPelo" className="block text-sm font-medium text-gray-700">
+                      Densidad del Pelo
+                    </label>
+                    <select
+                      id="densidadPelo"
+                      value={formData.densidadPelo}
+                      onChange={(e) => handleInputChange('densidadPelo', e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    >
+                      <option value="" className="text-gray-500 bg-white">Seleccionar densidad...</option>
+                      <option value="poco" className="text-gray-900 bg-white">📉 Poco</option>
+                      <option value="normal" className="text-gray-900 bg-white">📊 Normal</option>
+                      <option value="abundante" className="text-gray-900 bg-white">📈 Abundante</option>
                     </select>
                   </div>
                 </div>
@@ -499,6 +595,39 @@ export default function EditarClientePage() {
               </div>
               <div className="px-6 py-4">
                 <div className="space-y-6">
+                  <div>
+                    <label htmlFor="alergias" className="block text-sm font-medium text-gray-700">
+                      <span className="text-red-600 mr-1">⚠️</span>
+                      Alergias Conocidas
+                    </label>
+                    <textarea
+                      id="alergias"
+                      value={formData.alergias}
+                      onChange={(e) => handleInputChange('alergias', e.target.value)}
+                      rows={2}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="Ej: Amoníaco, PPD, fragancias fuertes..."
+                    />
+                    <p className="mt-1 text-xs text-red-600">
+                      ⚠️ Importante: Documentar todas las alergias para evitar reacciones
+                    </p>
+                  </div>
+
+                  <div>
+                    <label htmlFor="preferencias" className="block text-sm font-medium text-gray-700">
+                      <span className="text-blue-600 mr-1">💡</span>
+                      Preferencias del Cliente
+                    </label>
+                    <textarea
+                      id="preferencias"
+                      value={formData.preferencias}
+                      onChange={(e) => handleInputChange('preferencias', e.target.value)}
+                      rows={2}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="Ej: Productos sin sulfatos, cortes conservadores, colores naturales..."
+                    />
+                  </div>
+
                   <div>
                     <label htmlFor="redesSociales" className="block text-sm font-medium text-gray-700">
                       Redes Sociales
