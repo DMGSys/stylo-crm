@@ -97,9 +97,13 @@ export default function UsuariosPage() {
 
       if (response.ok) {
         fetchUsuarios()
+      } else {
+        const error = await response.json()
+        alert(error.error || 'Error al cambiar estado del usuario')
       }
     } catch (error) {
       console.error('Error al cambiar estado del usuario:', error)
+      alert('Error al cambiar estado del usuario')
     }
   }
 
