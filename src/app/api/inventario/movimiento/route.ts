@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
           citaId: citaId,
           tipo: 'SALIDA',
           cantidad: servicioProducto.cantidad,
-          precioUnitario: producto.precioCompra,
+          precioUnitario: producto.precioCosto,
           motivo: `Servicio: ${cita.servicioRef.nombre}`,
           referencia: `Cita #${cita.id.slice(-8)}`
         }

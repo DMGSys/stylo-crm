@@ -32,6 +32,8 @@ interface Producto {
   stockMinimo: number
   unidadMedida: string
   activo: boolean
+  fechaVencimiento?: string
+  proveedor?: string
   categoria: Categoria
 }
 
@@ -99,11 +101,12 @@ export default function ProductosPage() {
     }
   }
 
-  const getMargen = (costo: number, venta: number) => {
+  const getMargen = (costo: number, venta?: number) => {
+    if (!venta) return '0'
     return ((venta - costo) / costo * 100).toFixed(1)
   }
 
-  const productosStockBajo = productos.filter(p => p.stock <= p.stockMinimo && p.stock > 0).length
+  const productosStockBajo = productos.filter(p => p.stock <= (p.stockMinimo || 5) && p.stock > 0).length
   const productosAgotados = productos.filter(p => p.stock === 0).length
 
   if (loading) {
@@ -339,7 +342,7 @@ export default function ProductosPage() {
               return (
                 <li key={producto.id}>
                   <Link
-                    href={`/dashboard/productos/${producto.id}`}
+                    href={`/dashboard/productos/${producto.id}/editar`}
                     className="block hover:bg-gray-50 px-6 py-4"
                   >
                     <div className="flex items-center justify-between">

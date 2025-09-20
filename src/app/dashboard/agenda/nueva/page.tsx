@@ -42,7 +42,7 @@ interface Servicio {
     producto: {
       id: string
       nombre: string
-      precioCompra: number
+      precioCosto: number
       unidadMedida: string
       stock: number
     }
@@ -521,7 +521,7 @@ export default function NuevaCitaPage() {
                                     {sp.obligatorio && <span className="text-red-600 ml-1">*</span>}
                                   </span>
                                   <span className="font-medium">
-                                    {formatPrice(sp.producto.precioCompra * sp.cantidad)}
+                                    {formatPrice(sp.producto.precioCosto * sp.cantidad)}
                                   </span>
                                 </div>
                               ))}
@@ -529,7 +529,7 @@ export default function NuevaCitaPage() {
                                 <span>Costo productos:</span>
                                 <span>
                                   {formatPrice(getServicioSeleccionado()!.servicioProductos!.reduce((total, sp) => 
-                                    total + (sp.producto.precioCompra * sp.cantidad), 0
+                                    total + (sp.producto.precioCosto * sp.cantidad), 0
                                   ))}
                                 </span>
                               </div>

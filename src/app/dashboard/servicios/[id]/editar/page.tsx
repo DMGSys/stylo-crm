@@ -38,7 +38,7 @@ interface Categoria {
 interface Producto {
   id: string
   nombre: string
-  precioCompra: number
+  precioCosto: number
   precioVenta?: number
   stock: number
   unidadMedida: string
@@ -248,9 +248,9 @@ export default function EditarServicioPage() {
 
   const calcularCostoProductos = () => {
     return servicioProductos.reduce((total, sp) => {
-      const precioCompra = sp.producto.precioCompra || 0
+      const precioCosto = sp.producto.precioCosto || 0
       const cantidad = sp.cantidad || 0
-      return total + (precioCompra * cantidad)
+      return total + (precioCosto * cantidad)
     }, 0)
   }
 
@@ -604,7 +604,7 @@ export default function EditarServicioPage() {
                             .filter(p => !servicioProductos.find(sp => sp.productoId === p.id))
                             .map((producto) => (
                               <option key={producto.id} value={producto.id}>
-                                {producto.nombre} - {formatPrice(producto.precioCompra || 0)} ({producto.stock} {producto.unidadMedida})
+                                {producto.nombre} - {formatPrice(producto.precioCosto || 0)} ({producto.stock} {producto.unidadMedida})
                               </option>
                             ))}
                         </select>
@@ -622,15 +622,15 @@ export default function EditarServicioPage() {
                                   <h5 className="text-sm font-medium text-gray-900">{sp.producto.nombre}</h5>
                                   <p className="text-xs text-gray-500">
                                     Stock: {sp.producto.stock} {sp.producto.unidadMedida} • 
-                                    Costo: {formatPrice(sp.producto.precioCompra || 0)} cada uno
+                                    Costo: {formatPrice(sp.producto.precioCosto || 0)} cada uno
                                   </p>
                                 </div>
                                 <div className="text-right">
                                   <p className="text-sm font-medium text-gray-900">
-                                    {formatPrice((sp.producto.precioCompra || 0) * sp.cantidad)}
+                                    {formatPrice((sp.producto.precioCosto || 0) * sp.cantidad)}
                                   </p>
                                   <p className="text-xs text-gray-500">
-                                    {sp.cantidad} × {formatPrice(sp.producto.precioCompra || 0)}
+                                    {sp.cantidad} × {formatPrice(sp.producto.precioCosto || 0)}
                                   </p>
                                 </div>
                               </div>
