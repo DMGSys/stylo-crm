@@ -302,7 +302,7 @@ export default function CuentasBancariasPage() {
                     </button>
                     
                     <Link
-                      href={`/dashboard/cuentas-bancarias/${cuenta.id}/editar`}
+                      href={`/dashboard/cuentas-bancarias/${cuenta.id}`}
                       className="p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors"
                       title="Editar"
                     >
