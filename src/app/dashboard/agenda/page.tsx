@@ -10,7 +10,9 @@ import {
   UserIcon,
   PhoneIcon,
   CurrencyDollarIcon,
-  FunnelIcon
+  FunnelIcon,
+  ListBulletIcon,
+  ChartBarIcon
 } from '@heroicons/react/24/outline'
 import { usePriceFormatter } from '@/lib/config'
 
@@ -42,6 +44,11 @@ export default function AgendaPage() {
   const [filtroEstado, setFiltroEstado] = useState<string>('TODOS')
   const [fechaFiltro, setFechaFiltro] = useState('')
   const [filtroRapido, setFiltroRapido] = useState<string>('')
+  const [vistaActiva, setVistaActiva] = useState<'lista' | 'ocupacion'>('lista')
+  const [fechaOcupacion, setFechaOcupacion] = useState(() => {
+    const hoy = new Date()
+    return hoy.toISOString().split('T')[0]
+  })
   const searchParams = useSearchParams()
 
   useEffect(() => {
@@ -161,22 +168,57 @@ export default function AgendaPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Agenda</h1>
-          <p className="text-gray-600">Gestiona las citas de tu peluquería</p>
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:px-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Agenda</h1>
+              <p className="text-gray-600">Gestiona las citas de tu peluquería</p>
+            </div>
+            <Link
+              href="/dashboard/agenda/nueva"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              <PlusIcon className="h-4 w-4 mr-2" />
+              Nueva Cita
+            </Link>
+          </div>
         </div>
-        <Link
-          href="/dashboard/agenda/nueva"
-          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-        >
-          <PlusIcon className="h-4 w-4 mr-2" />
-          Nueva Cita
-        </Link>
+
+        {/* Pestañas */}
+        <div className="border-t border-gray-200">
+          <nav className="-mb-px flex space-x-8 px-6" aria-label="Tabs">
+            <button
+              onClick={() => setVistaActiva('lista')}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                vistaActiva === 'lista'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } transition-colors`}
+            >
+              <ListBulletIcon className="h-5 w-5 mr-2 inline" />
+              Lista de Citas
+            </button>
+            <button
+              onClick={() => setVistaActiva('ocupacion')}
+              className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm ${
+                vistaActiva === 'ocupacion'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              } transition-colors`}
+            >
+              <ChartBarIcon className="h-5 w-5 mr-2 inline" />
+              Ocupación Diaria
+            </button>
+          </nav>
+        </div>
       </div>
 
-      {/* Filtros */}
-      <div className="bg-white shadow rounded-lg p-3 sm:p-6">
+      {/* Vista Lista */}
+      {vistaActiva === 'lista' && (
+        <>
+          {/* Filtros */}
+          <div className="bg-white shadow rounded-lg p-3 sm:p-6">
         <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <label htmlFor="estado" className="block text-sm font-medium text-gray-700 mb-2">
@@ -398,6 +440,285 @@ export default function AgendaPage() {
               ))
           )}
         </ul>
+      </div>
+        </>
+      )}
+
+      {/* Vista Ocupación Diaria */}
+      {vistaActiva === 'ocupacion' && (
+        <OcupacionDiariaView 
+          fechaSeleccionada={fechaOcupacion} 
+          onFechaChange={setFechaOcupacion}
+        />
+      )}
+    </div>
+  )
+}
+
+// Componente para la vista de ocupación diaria
+function OcupacionDiariaView({ fechaSeleccionada, onFechaChange }: {
+  fechaSeleccionada: string
+  onFechaChange: (fecha: string) => void
+}) {
+  const { formatPrice } = usePriceFormatter()
+  const [citasDelDia, setCitasDelDia] = useState<Cita[]>([])
+  const [loading, setLoading] = useState(true)
+  const [configuracion, setConfiguracion] = useState<any>(null)
+
+  useEffect(() => {
+    fetchCitasDelDia()
+    fetchConfiguracion()
+  }, [fechaSeleccionada])
+
+  const fetchCitasDelDia = async () => {
+    try {
+      setLoading(true)
+      const response = await fetch(`/api/citas/ocupacion?fecha=${fechaSeleccionada}`)
+      const data = await response.json()
+      setCitasDelDia(data.citas || [])
+    } catch (error) {
+      console.error('Error al cargar citas del día:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchConfiguracion = async () => {
+    try {
+      const response = await fetch('/api/configuracion')
+      const data = await response.json()
+      setConfiguracion(data)
+    } catch (error) {
+      console.error('Error al cargar configuración:', error)
+    }
+  }
+
+  // Generar horarios del día (de 8:00 a 21:00 cada 30 minutos)
+  const generarHorarios = () => {
+    const horarios = []
+    for (let hora = 8; hora <= 21; hora++) {
+      horarios.push(`${hora.toString().padStart(2, '0')}:00`)
+      if (hora < 21) {
+        horarios.push(`${hora.toString().padStart(2, '0')}:30`)
+      }
+    }
+    return horarios
+  }
+
+  const convertirHoraAMinutos = (hora: string) => {
+    const [h, m] = hora.split(':').map(Number)
+    return h * 60 + m
+  }
+
+  const formatearFecha = (fecha: string) => {
+    const date = new Date(fecha + 'T12:00:00')
+    return new Intl.DateTimeFormat('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    }).format(date)
+  }
+
+  const getEstadoColor = (estado: string) => {
+    switch (estado) {
+      case 'PENDIENTE':
+        return 'bg-yellow-400'
+      case 'CONFIRMADA':
+        return 'bg-blue-500'
+      case 'REALIZADA':
+        return 'bg-green-500'
+      case 'CANCELADA':
+        return 'bg-red-400'
+      case 'REAGENDADA':
+        return 'bg-purple-500'
+      default:
+        return 'bg-gray-400'
+    }
+  }
+
+  const horarios = generarHorarios()
+  const intervaloMinutos = parseInt(configuracion?.horarios_intervalo_citas || '30')
+
+  // Agrupar citas por hora
+  const citasPorHora = citasDelDia.reduce((acc, cita) => {
+    if (!acc[cita.hora]) {
+      acc[cita.hora] = []
+    }
+    acc[cita.hora].push(cita)
+    return acc
+  }, {} as Record<string, Cita[]>)
+
+  // Calcular estadísticas del día
+  const totalCitas = citasDelDia.length
+  const citasConfirmadas = citasDelDia.filter(c => c.estado === 'CONFIRMADA').length
+  const citasRealizadas = citasDelDia.filter(c => c.estado === 'REALIZADA').length
+  const ingresosTotales = citasDelDia
+    .filter(c => c.estado === 'REALIZADA' && c.precio)
+    .reduce((sum, c) => sum + (c.precio || 0), 0)
+
+  return (
+    <div className="space-y-6">
+      {/* Selector de fecha y estadísticas */}
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:px-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
+            <div>
+              <h2 className="text-lg font-medium text-gray-900">
+                Ocupación del {formatearFecha(fechaSeleccionada)}
+              </h2>
+              <p className="text-sm text-gray-500">
+                Cronograma completo del día con todas las citas
+              </p>
+            </div>
+            <div className="flex items-center space-x-4">
+              <input
+                type="date"
+                value={fechaSeleccionada}
+                onChange={(e) => onFechaChange(e.target.value)}
+                className="block px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Estadísticas rápidas */}
+        <div className="border-t border-gray-200 px-4 py-4 sm:px-6">
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-gray-900">{totalCitas}</div>
+              <div className="text-sm text-gray-500">Total Citas</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-blue-600">{citasConfirmadas}</div>
+              <div className="text-sm text-gray-500">Confirmadas</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-green-600">{citasRealizadas}</div>
+              <div className="text-sm text-gray-500">Realizadas</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-purple-600">{formatPrice(ingresosTotales)}</div>
+              <div className="text-sm text-gray-500">Ingresos</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Cronograma */}
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:px-6">
+          <h3 className="text-lg font-medium text-gray-900 mb-4">
+            Cronograma del Día
+          </h3>
+          
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {horarios.map((hora) => {
+                const citasEnHora = citasPorHora[hora] || []
+                const hayConflicto = citasEnHora.length > 1
+                
+                return (
+                  <div key={hora} className="flex items-center min-h-[60px] border-b border-gray-100 last:border-b-0">
+                    {/* Columna de hora */}
+                    <div className="w-16 sm:w-20 flex-shrink-0 text-sm font-medium text-gray-500 text-right pr-4">
+                      {hora}
+                    </div>
+                    
+                    {/* Columna de citas */}
+                    <div className="flex-1 min-h-[50px] relative">
+                      {citasEnHora.length === 0 ? (
+                        <div className="flex items-center h-full text-gray-400 text-sm italic">
+                          Disponible
+                        </div>
+                      ) : (
+                        <div className="space-y-1 py-1">
+                          {citasEnHora.map((cita, index) => (
+                            <Link
+                              key={cita.id}
+                              href={`/dashboard/agenda/${cita.id}`}
+                              className="block"
+                            >
+                              <div className={`relative p-3 rounded-lg border-l-4 ${getEstadoColor(cita.estado)} bg-gray-50 hover:bg-gray-100 transition-colors ${
+                                hayConflicto ? 'border-red-300 bg-red-50' : ''
+                              }`}>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <div className="flex items-center space-x-2">
+                                      <span className="font-medium text-gray-900">
+                                        {cita.cliente.nombre} {cita.cliente.apellido}
+                                      </span>
+                                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                                        cita.estado === 'PENDIENTE' ? 'bg-yellow-100 text-yellow-800' :
+                                        cita.estado === 'CONFIRMADA' ? 'bg-blue-100 text-blue-800' :
+                                        cita.estado === 'REALIZADA' ? 'bg-green-100 text-green-800' :
+                                        cita.estado === 'CANCELADA' ? 'bg-red-100 text-red-800' :
+                                        'bg-purple-100 text-purple-800'
+                                      }`}>
+                                        {cita.estado}
+                                      </span>
+                                    </div>
+                                    {cita.servicio && (
+                                      <div className="text-sm text-gray-600 mt-1">
+                                        {cita.servicio}
+                                      </div>
+                                    )}
+                                    {cita.cliente.telefono && (
+                                      <div className="text-xs text-gray-500 mt-1">
+                                        📞 {cita.cliente.telefono}
+                                      </div>
+                                    )}
+                                  </div>
+                                  {cita.precio && (
+                                    <div className="text-sm font-medium text-gray-900">
+                                      {formatPrice(cita.precio)}
+                                    </div>
+                                  )}
+                                </div>
+                                {hayConflicto && (
+                                  <div className="absolute top-1 right-1">
+                                    <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                      ⚠️ Conflicto
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Leyenda */}
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:px-6">
+          <h4 className="text-sm font-medium text-gray-900 mb-3">Leyenda de Estados</h4>
+          <div className="flex flex-wrap gap-4">
+            {[
+              { estado: 'PENDIENTE', color: 'bg-yellow-400', label: 'Pendiente' },
+              { estado: 'CONFIRMADA', color: 'bg-blue-500', label: 'Confirmada' },
+              { estado: 'REALIZADA', color: 'bg-green-500', label: 'Realizada' },
+              { estado: 'CANCELADA', color: 'bg-red-400', label: 'Cancelada' },
+              { estado: 'REAGENDADA', color: 'bg-purple-500', label: 'Reagendada' }
+            ].map(({ estado, color, label }) => (
+              <div key={estado} className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded ${color}`}></div>
+                <span className="text-sm text-gray-600">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )

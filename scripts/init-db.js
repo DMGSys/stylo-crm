@@ -96,7 +96,7 @@ async function main() {
   } catch (error) {
     console.error('Error al inicializar la base de datos:', error)
   } finally {
-    await prisma.()
+    await prisma.$disconnect()
   }
 }
 

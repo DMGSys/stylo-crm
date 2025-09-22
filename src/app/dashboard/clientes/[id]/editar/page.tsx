@@ -54,7 +54,14 @@ export default function EditarClientePage() {
     redesSociales: '',
     alergias: '',
     preferencias: '',
-    notas: ''
+    notas: '',
+    // Campos bancarios
+    cvu: '',
+    cbu: '',
+    alias: '',
+    iban: '',
+    cuentaBancaria: '',
+    banco: ''
   })
 
   useEffect(() => {
@@ -86,7 +93,14 @@ export default function EditarClientePage() {
           redesSociales: data.redesSociales || '',
           alergias: data.alergias || '',
           preferencias: data.preferencias || '',
-          notas: data.notas || ''
+          notas: data.notas || '',
+          // Campos bancarios
+          cvu: data.cvu || '',
+          cbu: data.cbu || '',
+          alias: data.alias || '',
+          iban: data.iban || '',
+          cuentaBancaria: data.cuentaBancaria || '',
+          banco: data.banco || ''
         })
 
         // Inicializar foto
@@ -186,7 +200,14 @@ export default function EditarClientePage() {
           alergias: formData.alergias.trim() || undefined,
           preferencias: formData.preferencias.trim() || undefined,
           fotos: photoPreview || undefined,
-          notas: formData.notas.trim() || undefined
+          notas: formData.notas.trim() || undefined,
+          // Campos bancarios
+          cvu: formData.cvu.trim() || undefined,
+          cbu: formData.cbu.trim() || undefined,
+          alias: formData.alias.trim() || undefined,
+          iban: formData.iban.trim() || undefined,
+          cuentaBancaria: formData.cuentaBancaria.trim() || undefined,
+          banco: formData.banco.trim() || undefined
         })
       })
 
@@ -653,6 +674,105 @@ export default function EditarClientePage() {
                       onChange={(e) => handleInputChange('notas', e.target.value)}
                       className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                       placeholder="Observaciones, preferencias, alergias, etc."
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Información Bancaria */}
+            <div className="bg-white shadow rounded-lg">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">Información Bancaria</h3>
+                <p className="text-sm text-gray-500">Datos para transferencias y pagos</p>
+              </div>
+              <div className="px-6 py-4">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="cvu" className="block text-sm font-medium text-gray-700">
+                      🇦🇷 CVU (Argentina)
+                    </label>
+                    <input
+                      type="text"
+                      id="cvu"
+                      value={formData.cvu}
+                      onChange={(e) => handleInputChange('cvu', e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="0000003100010000000001"
+                      maxLength={22}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="cbu" className="block text-sm font-medium text-gray-700">
+                      🇦🇷 CBU (Argentina)
+                    </label>
+                    <input
+                      type="text"
+                      id="cbu"
+                      value={formData.cbu}
+                      onChange={(e) => handleInputChange('cbu', e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="0170001540000001234567"
+                      maxLength={22}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="alias" className="block text-sm font-medium text-gray-700">
+                      📝 Alias Bancario
+                    </label>
+                    <input
+                      type="text"
+                      id="alias"
+                      value={formData.alias}
+                      onChange={(e) => handleInputChange('alias', e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="CLIENTE.SALON.123"
+                      maxLength={20}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="iban" className="block text-sm font-medium text-gray-700">
+                      🇪🇺 IBAN (Europa)
+                    </label>
+                    <input
+                      type="text"
+                      id="iban"
+                      value={formData.iban}
+                      onChange={(e) => handleInputChange('iban', e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="ES91 2100 0418 4502 0005 1332"
+                      maxLength={34}
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="cuentaBancaria" className="block text-sm font-medium text-gray-700">
+                      🏦 Número de Cuenta
+                    </label>
+                    <input
+                      type="text"
+                      id="cuentaBancaria"
+                      value={formData.cuentaBancaria}
+                      onChange={(e) => handleInputChange('cuentaBancaria', e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="1234567890123456"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="banco" className="block text-sm font-medium text-gray-700">
+                      🏦 Banco
+                    </label>
+                    <input
+                      type="text"
+                      id="banco"
+                      value={formData.banco}
+                      onChange={(e) => handleInputChange('banco', e.target.value)}
+                      className="mt-1 block w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      placeholder="Banco Santander, BBVA, Banco Nación"
                     />
                   </div>
                 </div>

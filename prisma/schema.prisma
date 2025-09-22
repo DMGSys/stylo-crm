@@ -34,6 +34,12 @@ model User {
   movimientos  MovimientoInventario[]
   roleCustom   Role?    @relation(fields: [roleId], references: [id])
   historialRegistros HistorialCliente[] @relation("HistorialUsuario")
+  
+  // Relaciones del sistema de pagos
+  pagos        Pago[]   @relation("UsuarioPago")
+  movimientosCaja MovimientoCaja[] @relation("UsuarioMovimiento")
+  arqueosCaja  ArqueoCaja[] @relation("UsuarioArqueo")
+  gastos       GastoOperativo[] @relation("UsuarioGasto")
 
   @@map("users")
 }
@@ -76,12 +82,22 @@ model Cliente {
   alergias          String?     // Alergias conocidas
   preferencias      String?     // Preferencias del cliente
   notas             String?
+  
+  // Información bancaria y referencias
+  cvu               String?     // CVU para Argentina
+  cbu               String?     // CBU para Argentina
+  alias             String?     // Alias bancario
+  iban              String?     // IBAN para Europa
+  cuentaBancaria    String?     // Número de cuenta genérico
+  banco             String?     // Nombre del banco
+  
   activo            Boolean     @default(true)
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
 
   citas Cita[]
   historialCambios HistorialCliente[]
+  pagos Pago[] @relation("ClientePago")
 
   @@map("clientes")
 }
@@ -131,6 +147,7 @@ model Cita {
   promocion  Promocion? @relation("PromocionCita", fields: [promocionId], references: [id])
   historialRegistros HistorialCliente[] @relation("HistorialCita")
   movimientos MovimientoInventario[]
+  pago       Pago?      @relation("CitaPago")
 
   @@map("citas")
 }
@@ -365,4 +382,163 @@ enum TipoPromocion {
   VALOR_FIJO
   DOS_POR_UNO
   DESCUENTO_SEGUNDA_UNIDAD
+}
+
+// Sistema de Cobros y Contabilidad
+model Pago {
+  id              String      @id @default(cuid())
+  citaId          String      @unique // Un pago por cita
+  clienteId       String      // Para consultas rápidas
+  usuarioId       String?     // Quien procesó el pago
+  monto           Float       // Monto total pagado
+  montoServicio   Float       // Monto del servicio
+  propina         Float?      @default(0) // Propina adicional
+  descuento       Float?      @default(0) // Descuento aplicado
+  metodoPago      MetodoPago  @default(EFECTIVO)
+  estadoPago      EstadoPago  @default(COMPLETADO)
+  cuentaBancariaId String?    // Cuenta bancaria utilizada para transferencias
+  referencia      String?     // Número de referencia/transacción
+  notas           String?     // Notas del pago
+  fechaPago       DateTime    @default(now())
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  cita     Cita           @relation("CitaPago", fields: [citaId], references: [id], onDelete: Cascade)
+  cliente  Cliente        @relation("ClientePago", fields: [clienteId], references: [id])
+  usuario  User?          @relation("UsuarioPago", fields: [usuarioId], references: [id])
+  cuentaBancaria CuentaBancaria? @relation("CuentaPago", fields: [cuentaBancariaId], references: [id])
+  
+  // Relación con movimientos de caja
+  movimientosCaja MovimientoCaja[]
+
+  @@map("pagos")
+}
+
+model MovimientoCaja {
+  id           String              @id @default(cuid())
+  tipo         TipoMovimientoCaja  
+  concepto     String              // Descripción del movimiento
+  monto        Float           // Monto (positivo para ingresos, negativo para gastos)
+  metodoPago   MetodoPago?     // Solo para ingresos de servicios
+  pagoId       String?         // Si viene de un pago de servicio
+  usuarioId    String?         // Quien registró el movimiento
+  categoria    String?         // Categoría del gasto/ingreso
+  referencia   String?         // Número de referencia
+  notas        String?         // Notas adicionales
+  fecha        DateTime        @default(now())
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  pago    Pago? @relation(fields: [pagoId], references: [id])
+  usuario User? @relation("UsuarioMovimiento", fields: [usuarioId], references: [id])
+
+  @@map("movimientos_caja")
+}
+
+model ArqueoCaja {
+  id                String   @id @default(cuid())
+  fecha             DateTime // Fecha del arqueo
+  usuarioId         String   // Quien hizo el arqueo
+  saldoInicial      Float    // Saldo al inicio del día
+  totalIngresos     Float    // Total de ingresos del día
+  totalEgresos      Float    // Total de egresos del día
+  saldoTeorico      Float    // Saldo que debería haber
+  saldoReal         Float    // Saldo contado físicamente
+  diferencia        Float    // Diferencia entre teórico y real
+  observaciones     String?  // Observaciones del arqueo
+  
+  // Desglose por método de pago
+  efectivo          Float    @default(0)
+  tarjetaCredito    Float    @default(0)
+  tarjetaDebito     Float    @default(0)
+  transferencia     Float    @default(0)
+  otros             Float    @default(0)
+  
+  cerrado           Boolean  @default(false)
+  fechaCierre       DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  usuario User @relation("UsuarioArqueo", fields: [usuarioId], references: [id])
+
+  @@unique([fecha, usuarioId])
+  @@map("arqueos_caja")
+}
+
+model GastoOperativo {
+  id          String   @id @default(cuid())
+  concepto    String   // Descripción del gasto
+  categoria   String   // Categoría (Servicios, Suministros, Personal, etc.)
+  monto       Float    // Monto del gasto
+  metodoPago  MetodoPago @default(EFECTIVO)
+  proveedor   String?  // Proveedor o beneficiario
+  referencia  String?  // Factura, recibo, etc.
+  usuarioId   String?  // Quien registró el gasto
+  fecha       DateTime @default(now())
+  notas       String?  // Notas adicionales
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  usuario User? @relation("UsuarioGasto", fields: [usuarioId], references: [id])
+
+  @@map("gastos_operativos")
+}
+
+// Enums para el sistema de pagos
+enum MetodoPago {
+  EFECTIVO
+  TARJETA_CREDITO
+  TARJETA_DEBITO
+  TRANSFERENCIA
+  PAYPAL
+  BIZUM
+  OTROS
+}
+
+enum EstadoPago {
+  PENDIENTE
+  COMPLETADO
+  CANCELADO
+  REEMBOLSADO
+}
+
+enum TipoMovimientoCaja {
+  INGRESO_SERVICIO
+  INGRESO_PRODUCTO
+  INGRESO_OTROS
+  EGRESO_GASTO
+  EGRESO_DEVOLUCION
+  AJUSTE_POSITIVO
+  AJUSTE_NEGATIVO
+}
+
+// Modelo para múltiples cuentas bancarias del negocio
+model CuentaBancaria {
+  id            String   @id @default(cuid())
+  nombre        String   // Nombre descriptivo de la cuenta
+  banco         String   // Nombre del banco
+  titular       String   // Titular de la cuenta
+  tipoCuenta    String   // CORRIENTE, AHORRO, etc.
+  
+  // Datos bancarios según región
+  cvu           String?  // CVU para Argentina
+  cbu           String?  // CBU para Argentina
+  alias         String?  // Alias bancario
+  iban          String?  // IBAN para Europa
+  numeroCuenta  String?  // Número de cuenta genérico
+  codigoSwift   String?  // Código SWIFT internacional
+  
+  // Configuración
+  activa        Boolean  @default(true)
+  predeterminada Boolean @default(false)
+  moneda        String   @default("ARS") // ARS, EUR, USD, etc.
+  notas         String?  // Observaciones
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relaciones
+  pagos         Pago[]   @relation("CuentaPago")
+
+  @@map("cuentas_bancarias")
 }

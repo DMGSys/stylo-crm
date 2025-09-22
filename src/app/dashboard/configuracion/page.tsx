@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import {
   CogIcon,
   CurrencyDollarIcon,
@@ -377,6 +378,27 @@ export default function ConfiguracionPage() {
               </div>
             </div>
             </div>
+          </div>
+        </div>
+
+        {/* Enlace a Cuentas Bancarias */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <CurrencyDollarIcon className="h-8 w-8 text-blue-600 mr-4" />
+              <div>
+                <h3 className="text-lg font-medium text-blue-900">Cuentas Bancarias</h3>
+                <p className="text-sm text-blue-700">
+                  Gestiona múltiples cuentas bancarias para recibir transferencias
+                </p>
+              </div>
+            </div>
+            <Link
+              href="/dashboard/cuentas-bancarias"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              Gestionar Cuentas
+            </Link>
           </div>
         </div>
 

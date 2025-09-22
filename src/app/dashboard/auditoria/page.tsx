@@ -129,13 +129,128 @@ export default function AuditoriaPage() {
     )
   }
 
+  // Calcular estadísticas
+  const estadisticas = {
+    total: logs.length,
+    acciones: {
+      CREATE: logs.filter(log => log.accion === 'CREATE').length,
+      UPDATE: logs.filter(log => log.accion === 'UPDATE').length,
+      DELETE: logs.filter(log => log.accion === 'DELETE').length
+    },
+    entidades: {
+      Cliente: logs.filter(log => log.entidad === 'Cliente').length,
+      Cita: logs.filter(log => log.entidad === 'Cita').length,
+      User: logs.filter(log => log.entidad === 'User').length,
+      Configuracion: logs.filter(log => log.entidad === 'Configuracion').length
+    },
+    usuarios: [...new Set(logs.map(log => log.usuario?.name || 'Sistema'))].length
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Auditoría del Sistema</h1>
-          <p className="text-gray-600">Historial de cambios y acciones de usuarios</p>
+      <div className="bg-white shadow rounded-lg">
+        <div className="px-4 py-5 sm:px-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Auditoría del Sistema</h1>
+              <p className="text-gray-600">Historial de cambios y acciones de usuarios</p>
+            </div>
+            <div className="flex items-center space-x-3">
+              <DocumentTextIcon className="h-8 w-8 text-blue-600" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Estadísticas */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="bg-blue-500 p-3 rounded-md">
+                  <DocumentTextIcon className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    Total Registros
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {estadisticas.total}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="bg-green-500 p-3 rounded-md">
+                  <UserIcon className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    Usuarios Activos
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {estadisticas.usuarios}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="bg-yellow-500 p-3 rounded-md">
+                  <ClockIcon className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    Creaciones
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {estadisticas.acciones.CREATE}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="bg-purple-500 p-3 rounded-md">
+                  <DocumentTextIcon className="h-6 w-6 text-white" />
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">
+                    Modificaciones
+                  </dt>
+                  <dd className="text-lg font-medium text-gray-900">
+                    {estadisticas.acciones.UPDATE}
+                  </dd>
+                </dl>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

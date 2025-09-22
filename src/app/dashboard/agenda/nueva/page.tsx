@@ -60,10 +60,16 @@ export default function NuevaCitaPage() {
   const [loadingClientes, setLoadingClientes] = useState(true)
   const [loadingServicios, setLoadingServicios] = useState(true)
   const [verificandoDisponibilidad, setVerificandoDisponibilidad] = useState(false)
+  const [permitirSuperposicion, setPermitirSuperposicion] = useState(false)
   const [disponibilidad, setDisponibilidad] = useState<{
     disponible: boolean
-    conflicto?: any
+    conflictos?: any[]
+    superposiciones?: any[]
     sugerencias?: string[]
+    duracionServicio?: number
+    intervaloConfigurado?: number
+    tiempoTotalOcupado?: number
+    mensaje?: string
   } | null>(null)
   const [formData, setFormData] = useState({
     clienteId: searchParams.get('cliente') || '',
@@ -148,7 +154,8 @@ export default function NuevaCitaPage() {
         servicio: formData.servicio.trim() || undefined,
         precio: formData.precio ? parseFloat(formData.precio) : undefined,
         notas: formData.notas.trim() || undefined,
-        recordatorio: formData.recordatorio
+        recordatorio: formData.recordatorio,
+        permitirSuperposicion: permitirSuperposicion
       }
 
       const response = await fetch('/api/citas', {
@@ -241,7 +248,7 @@ export default function NuevaCitaPage() {
     return servicios.find(s => s.id === formData.servicioId)
   }
 
-  const verificarDisponibilidad = async (fecha: string, hora: string) => {
+  const verificarDisponibilidad = async (fecha: string, hora: string, servicioId?: string, permitirSuper?: boolean) => {
     if (!fecha || !hora) {
       setDisponibilidad(null)
       return
@@ -249,7 +256,15 @@ export default function NuevaCitaPage() {
 
     setVerificandoDisponibilidad(true)
     try {
-      const response = await fetch(`/api/citas/disponibilidad?fecha=${fecha}&hora=${hora}`)
+      let url = `/api/citas/disponibilidad?fecha=${fecha}&hora=${hora}`
+      if (servicioId) {
+        url += `&servicioId=${servicioId}`
+      }
+      if (permitirSuper) {
+        url += `&permitirSuperposicion=true`
+      }
+      
+      const response = await fetch(url)
       if (response.ok) {
         const data = await response.json()
         setDisponibilidad(data)
@@ -261,16 +276,16 @@ export default function NuevaCitaPage() {
     }
   }
 
-  // Verificar disponibilidad cuando cambie fecha u hora
+  // Verificar disponibilidad cuando cambie fecha, hora, servicio o superposición
   useEffect(() => {
     if (formData.fecha && formData.hora) {
       const timeoutId = setTimeout(() => {
-        verificarDisponibilidad(formData.fecha, formData.hora)
+        verificarDisponibilidad(formData.fecha, formData.hora, formData.servicioId, permitirSuperposicion)
       }, 500) // Debounce de 500ms
       
       return () => clearTimeout(timeoutId)
     }
-  }, [formData.fecha, formData.hora])
+  }, [formData.fecha, formData.hora, formData.servicioId, permitirSuperposicion])
 
   const clienteSeleccionado = getClienteSeleccionado()
 
@@ -397,50 +412,115 @@ export default function NuevaCitaPage() {
                       ))}
                     </select>
                     
+                    {/* Checkbox para permitir superposición */}
+                    {formData.servicioId && (
+                      <div className="mt-3">
+                        <label className="flex items-center">
+                          <input
+                            type="checkbox"
+                            checked={permitirSuperposicion}
+                            onChange={(e) => setPermitirSuperposicion(e.target.checked)}
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                          />
+                          <span className="ml-2 text-sm text-gray-700">
+                            Permitir superposición de citas
+                          </span>
+                        </label>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Permite agendar citas que se superpongan con otras, calculando el tiempo total ocupado
+                        </p>
+                      </div>
+                    )}
+
                     {/* Indicador de disponibilidad */}
                     {(formData.fecha && formData.hora) && (
-                      <div className="mt-2">
+                      <div className="mt-3">
                         {verificandoDisponibilidad ? (
                           <div className="flex items-center text-sm text-gray-500">
                             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400 mr-2"></div>
                             Verificando disponibilidad...
                           </div>
                         ) : disponibilidad ? (
-                          disponibilidad.disponible ? (
-                            <div className="flex items-center text-sm text-green-600">
-                              <CheckIcon className="h-4 w-4 mr-1" />
-                              Horario disponible
-                            </div>
-                          ) : (
-                            <div className="space-y-2">
-                              <div className="flex items-center text-sm text-red-600">
+                          <div className="space-y-3">
+                            {/* Estado de disponibilidad */}
+                            <div className={`flex items-center text-sm ${disponibilidad.disponible ? 'text-green-600' : 'text-red-600'}`}>
+                              {disponibilidad.disponible ? (
+                                <CheckIcon className="h-4 w-4 mr-1" />
+                              ) : (
                                 <XMarkIcon className="h-4 w-4 mr-1" />
-                                Horario ocupado
-                                {disponibilidad.conflicto && (
-                                  <span className="ml-1">
-                                    - {disponibilidad.conflicto.cliente}
-                                  </span>
+                              )}
+                              {disponibilidad.disponible ? 'Horario disponible' : 'Conflicto de horario'}
+                            </div>
+
+                            {/* Información del servicio y tiempos */}
+                            {disponibilidad.duracionServicio && (
+                              <div className="text-xs text-gray-600 space-y-1">
+                                <div>⏱️ Duración del servicio: {disponibilidad.duracionServicio} minutos</div>
+                                <div>📏 Intervalo configurado: {disponibilidad.intervaloConfigurado} minutos</div>
+                                {disponibilidad.tiempoTotalOcupado !== disponibilidad.duracionServicio && (
+                                  <div className="text-orange-600">
+                                    🔄 Tiempo total ocupado: {disponibilidad.tiempoTotalOcupado} minutos
+                                  </div>
                                 )}
                               </div>
-                              {disponibilidad.sugerencias && disponibilidad.sugerencias.length > 0 && (
-                                <div className="text-xs text-gray-600">
-                                  <p className="font-medium">Horarios disponibles:</p>
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {disponibilidad.sugerencias.map((horario) => (
-                                      <button
-                                        key={horario}
-                                        type="button"
-                                        onClick={() => handleInputChange('hora', horario)}
-                                        className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs hover:bg-green-200"
-                                      >
-                                        {horario}
-                                      </button>
-                                    ))}
+                            )}
+
+                            {/* Mostrar conflictos exactos */}
+                            {disponibilidad.conflictos && disponibilidad.conflictos.length > 0 && (
+                              <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                                <h4 className="text-sm font-medium text-red-800 mb-2">Conflictos exactos:</h4>
+                                {disponibilidad.conflictos.map((conflicto, index) => (
+                                  <div key={index} className="text-xs text-red-700 mb-1">
+                                    • {conflicto.cliente} - {conflicto.servicio} ({conflicto.hora}, {conflicto.duracion}min)
                                   </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Mostrar superposiciones */}
+                            {disponibilidad.superposiciones && disponibilidad.superposiciones.length > 0 && (
+                              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                                <h4 className="text-sm font-medium text-yellow-800 mb-2">Superposiciones detectadas:</h4>
+                                {disponibilidad.superposiciones.map((super_, index) => (
+                                  <div key={index} className="text-xs text-yellow-700 mb-1">
+                                    • {super_.cliente} - {super_.servicio} ({super_.hora}, {super_.duracion}min)
+                                    {super_.tipo === 'solapamiento' && (
+                                      <span className="text-orange-600"> - Solapa {super_.solapamientoMinutos}min</span>
+                                    )}
+                                    {super_.tipo === 'intervalo_insuficiente' && (
+                                      <span className="text-orange-600"> - Intervalo: {super_.intervaloActual}min (req: {super_.intervaloRequerido}min)</span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Sugerencias de horarios */}
+                            {disponibilidad.sugerencias && disponibilidad.sugerencias.length > 0 && (
+                              <div className="bg-green-50 border border-green-200 rounded-md p-3">
+                                <p className="text-sm font-medium text-green-800 mb-2">Horarios disponibles:</p>
+                                <div className="flex flex-wrap gap-1">
+                                  {disponibilidad.sugerencias.map((horario) => (
+                                    <button
+                                      key={horario}
+                                      type="button"
+                                      onClick={() => handleInputChange('hora', horario)}
+                                      className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs hover:bg-green-200 transition-colors"
+                                    >
+                                      {horario}
+                                    </button>
+                                  ))}
                                 </div>
-                              )}
-                            </div>
-                          )
+                              </div>
+                            )}
+
+                            {/* Mensaje adicional */}
+                            {disponibilidad.mensaje && (
+                              <div className="text-xs text-gray-600 italic">
+                                {disponibilidad.mensaje}
+                              </div>
+                            )}
+                          </div>
                         ) : null}
                       </div>
                     )}
@@ -678,7 +758,7 @@ export default function NuevaCitaPage() {
           </Link>
           <button
             type="submit"
-            disabled={saving || !formData.clienteId || !formData.fecha || !formData.hora || (disponibilidad && !disponibilidad.disponible)}
+            disabled={saving || !formData.clienteId || !formData.fecha || !formData.hora || (disponibilidad && !disponibilidad.disponible && !permitirSuperposicion)}
             className="inline-flex items-center px-6 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm"
           >
             {saving ? (

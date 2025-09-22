@@ -17,7 +17,8 @@ import {
   XMarkIcon,
   CubeIcon,
   UserGroupIcon,
-  ShieldCheckIcon
+  ShieldCheckIcon,
+  CurrencyDollarIcon
 } from '@heroicons/react/24/outline'
 
 export default function DashboardLayout({
@@ -32,6 +33,9 @@ export default function DashboardLayout({
     { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, roles: ['ADMINISTRADOR', 'ESTILISTA'] },
     { name: 'Clientes', href: '/dashboard/clientes', icon: UsersIcon, roles: ['ADMINISTRADOR', 'ESTILISTA'] },
     { name: 'Agenda', href: '/dashboard/agenda', icon: CalendarIcon, roles: ['ADMINISTRADOR', 'ESTILISTA'] },
+    { name: 'Historial', href: '/dashboard/historial', icon: ClockIcon, roles: ['ADMINISTRADOR', 'ESTILISTA'] },
+    { name: 'Cobros', href: '/dashboard/cobros', icon: CurrencyDollarIcon, roles: ['ADMINISTRADOR', 'ESTILISTA'] },
+    { name: 'Cuentas Bancarias', href: '/dashboard/cuentas-bancarias', icon: CurrencyDollarIcon, roles: ['ADMINISTRADOR'] },
     { name: 'Servicios', href: '/dashboard/servicios', icon: TagIcon, roles: ['ADMINISTRADOR', 'ESTILISTA'] },
     { name: 'Productos', href: '/dashboard/productos', icon: CubeIcon, roles: ['ADMINISTRADOR', 'ESTILISTA'] },
     { name: 'Usuarios', href: '/dashboard/usuarios', icon: UserGroupIcon, roles: ['ADMINISTRADOR'] },

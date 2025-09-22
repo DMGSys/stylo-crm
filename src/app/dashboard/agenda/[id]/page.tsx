@@ -112,7 +112,15 @@ export default function CitaDetailPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          estado: nuevoEstado
+          clienteId: cita.clienteId,
+          fecha: cita.fecha,
+          hora: cita.hora,
+          estado: nuevoEstado,
+          servicioId: cita.servicioId || undefined,
+          servicio: cita.servicio || undefined,
+          precio: cita.precio || undefined,
+          notas: cita.notas || undefined,
+          recordatorio: cita.recordatorio || false
         })
       })
 
@@ -385,6 +393,15 @@ export default function CitaDetailPage() {
               <h3 className="text-lg font-medium text-gray-900">Acciones</h3>
             </div>
             <div className="px-6 py-4 space-y-3">
+              {/* Botón de editar - siempre disponible */}
+              <Link
+                href={`/dashboard/agenda/${cita.id}/editar`}
+                className="w-full flex items-center justify-center px-4 py-2 border border-blue-300 text-sm font-medium rounded-md text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors"
+              >
+                <PencilIcon className="h-4 w-4 mr-2" />
+                Editar Cita
+              </Link>
+
               {cita.estado === 'PENDIENTE' && (
                 <button
                   onClick={() => updateEstado('CONFIRMADA')}
@@ -403,6 +420,16 @@ export default function CitaDetailPage() {
                   <CheckIcon className="h-4 w-4 mr-2" />
                   Marcar como Realizada
                 </button>
+              )}
+
+              {cita.estado === 'REALIZADA' && (
+                <Link
+                  href={`/dashboard/cobros/nuevo?cita=${cita.id}`}
+                  className="w-full flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+                >
+                  <CurrencyDollarIcon className="h-4 w-4 mr-2" />
+                  Registrar Cobro
+                </Link>
               )}
 
               {(cita.estado === 'PENDIENTE' || cita.estado === 'CONFIRMADA') && (

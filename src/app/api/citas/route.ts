@@ -84,23 +84,47 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Validar que no haya conflicto de horario (opcional)
-    const fechaHora = new Date(body.fecha)
-    const conflicto = await prisma.cita.findFirst({
-      where: {
-        fecha: fechaHora,
-        hora: body.hora,
-        estado: {
-          in: ['PENDIENTE', 'CONFIRMADA']
+    // Obtener información del servicio si se proporciona
+    let servicio = null
+    let precioCalculado = body.precio ? parseFloat(body.precio) : 0
+
+    if (body.servicioId) {
+      servicio = await prisma.servicio.findUnique({
+        where: { id: body.servicioId },
+        include: {
+          categoria: true
+        }
+      })
+
+      if (servicio) {
+        // Usar precio de venta del servicio si no se especifica precio
+        if (!body.precio || body.precio === '') {
+          precioCalculado = servicio.precioVenta || servicio.precioBase
         }
       }
-    })
+    }
 
-    if (conflicto) {
-      return NextResponse.json(
-        { error: "Ya hay una cita programada para esa fecha y hora" },
-        { status: 409 }
-      )
+    // Validar conflictos de horario solo si no se permite superposición
+    const permitirSuperposicion = body.permitirSuperposicion === true
+    const fechaHora = new Date(body.fecha)
+
+    if (!permitirSuperposicion) {
+      const conflicto = await prisma.cita.findFirst({
+        where: {
+          fecha: fechaHora,
+          hora: body.hora,
+          estado: {
+            in: ['PENDIENTE', 'CONFIRMADA']
+          }
+        }
+      })
+
+      if (conflicto) {
+        return NextResponse.json(
+          { error: "Ya hay una cita programada para esa fecha y hora" },
+          { status: 409 }
+        )
+      }
     }
 
     // Crear la cita
@@ -111,8 +135,8 @@ export async function POST(request: NextRequest) {
         fecha: fechaHora,
         hora: body.hora,
         estado: body.estado || 'PENDIENTE',
-        servicio: body.servicio?.trim() || undefined,
-        precio: body.precio || undefined,
+        servicio: body.servicio?.trim() || (servicio ? servicio.nombre : undefined),
+        precio: precioCalculado > 0 ? precioCalculado : undefined,
         notas: body.notas?.trim() || undefined,
         recordatorio: body.recordatorio || false
       },
